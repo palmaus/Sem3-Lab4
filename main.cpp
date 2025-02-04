@@ -63,7 +63,7 @@ void runAllTests() {
 }
 
 int main(int argc, char* argv[]) {
-    int testMode = 1;
+    int testMode = 0;
     if (testMode == 1) {
         runAllTests();
     } else {

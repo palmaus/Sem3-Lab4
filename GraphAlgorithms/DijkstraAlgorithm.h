@@ -50,7 +50,6 @@ public:
 
         while (!queue.isEmpty()) {
             size_t currentVertexId = queue.dequeue();
-            std::cout << "Dequeued vertex: " << currentVertexId << std::endl;
             IVertex* currentVertex = graph->getVertexById(currentVertexId);
             if (!currentVertex) continue;
 
@@ -75,7 +74,6 @@ public:
                     queue.enqueue(neighborVertex->getId(), newDistance); // Обновляем приоритет
 
                 } else {
-                    std::cout << "    Distance to " << neighborVertex->getId() << " NOT updated" << std::endl;
                 }
             }
         }
