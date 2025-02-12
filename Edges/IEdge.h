@@ -2,16 +2,14 @@
 #define IEDGE_H
 
 #include "IVertex.h"
-#include "SharedPtr.h"
 
-template <typename Weight>
+template <typename TWeight, typename TIdentifier>
 class IEdge {
 public:
     virtual ~IEdge() = default;
-    virtual IVertex* getFrom() const = 0;
-    virtual IVertex* getTo() const = 0;
-    virtual Weight getWeight() const = 0;
-    virtual void setWeight(Weight weight) = 0;
+    virtual IVertex<TIdentifier>* getFrom() const = 0;
+    virtual IVertex<TIdentifier>* getTo() const = 0;
+    virtual TWeight getWeight() const = 0;
 };
 
 #endif //IEDGE_H

@@ -7,9 +7,6 @@ class LinkedList;
 template<typename T>
 class DynamicArray;
 
-template <typename T, typename Comparator>
-class ISorter;
-
 namespace internal_tests {
     template<typename T>
     bool linkedListsEqual(const LinkedList<T> *list1, const LinkedList<T> *list2);
@@ -31,4 +28,5 @@ namespace internal_tests {
     void testSharedPtr();
     void testUniquePtr();
     void testWeakPtr();
+    void testGraphPath();
 }

@@ -4,20 +4,18 @@
 #include "IVertex.h"
 #include <string>
 
-class Vertex : public IVertex {
+template <typename TIdentifier>
+class Vertex : public IVertex<TIdentifier> {
 private:
-    size_t id_;
-    std::string name_;
+    TIdentifier id_;
 
 public:
-    Vertex(size_t id) : id_(id), name_("") {}
-    Vertex(size_t id, const std::string& name) : id_(id), name_(name) {}
+    explicit Vertex(TIdentifier id) : id_(id) {}
+    Vertex(const Vertex& other) : id_(other.id_) {} // Конструктор копирования
     ~Vertex() override = default;
 
-    size_t getId() const override { return id_; }
-    void setId(size_t id) override { id_ = id; }
-    std::string getName() const override { return name_; }
-    void setName(const std::string& name) override { name_ = name; }
+    TIdentifier getId() const override { return id_; }
+    void setId(TIdentifier id) override { id_ = id; }
 };
 
 #endif //VERTEX_H

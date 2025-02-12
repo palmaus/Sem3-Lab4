@@ -4,14 +4,14 @@
 #include "DirectedGraph.h"
 #include <stdexcept>
 
-template <typename Weight>
-class TopologicalSortAlgorithm : public IAlgorithm<Weight, MutableArraySequence<IVertex*>> {
+template <typename TWeight, typename TIdentifier>
+class TopologicalSortAlgorithm : public IAlgorithm<TWeight, MutableArraySequence<IVertex<TIdentifier>*>, TIdentifier> {
 private:
-    void fillOrder(IVertex* vertex, const IGraph<Weight>* graph, HashTableDictionary<size_t, bool>& visited, MutableArraySequence<IVertex*>& stack) const {
+    void fillOrder(IVertex<TIdentifier>* vertex, const IGraph<TWeight, TIdentifier>* graph, HashTableDictionary<TIdentifier, bool>& visited, MutableArraySequence<IVertex<TIdentifier>*>& stack) const {
         visited.add(vertex->getId(), true);
         auto edges = graph->getEdges(vertex);
         for (size_t i = 0; i < edges.getLength(); ++i) {
-            IVertex* neighbor = edges.get(i)->getTo();
+            IVertex<TIdentifier>* neighbor = edges.get(i)->getTo();
             if (!visited.get(neighbor->getId())) {
                 fillOrder(neighbor, graph, visited, stack);
             }
@@ -20,13 +20,13 @@ private:
     }
 
 
-    bool hasCycleUtil(const IGraph<Weight>* graph, IVertex* vertex, HashTableDictionary<size_t, bool>& visited, HashTableDictionary<size_t, bool>& recursionStack) const {
+    bool hasCycleUtil(const IGraph<TWeight, TIdentifier>* graph, IVertex<TIdentifier>* vertex, HashTableDictionary<TIdentifier, bool>& visited, HashTableDictionary<TIdentifier, bool>& recursionStack) const {
         visited.add(vertex->getId(), true);
         recursionStack.add(vertex->getId(), true);
 
         auto edges = graph->getEdges(vertex);
         for (size_t i = 0; i < edges.getLength(); ++i) {
-            IVertex* neighbor = edges.get(i)->getTo();
+            IVertex<TIdentifier>* neighbor = edges.get(i)->getTo();
             if (!visited.get(neighbor->getId())) {
                 if (hasCycleUtil(graph, neighbor, visited, recursionStack)) {
                     return true;
@@ -41,14 +41,14 @@ private:
     }
 
 
-    bool hasCycle(const IGraph<Weight>* graph) const {
-        const DirectedGraph<Weight>* directedGraph = dynamic_cast<const DirectedGraph<Weight>*>(graph);
+    bool hasCycle(const IGraph<TWeight, TIdentifier>* graph) const {
+        const DirectedGraph<TWeight, TIdentifier>* directedGraph = dynamic_cast<const DirectedGraph<TWeight, TIdentifier>*>(graph);
         if (!directedGraph) {
             return false;
         }
 
-        HashTableDictionary<size_t, bool> visited;
-        HashTableDictionary<size_t, bool> recursionStack;
+        HashTableDictionary<TIdentifier, bool> visited;
+        HashTableDictionary<TIdentifier, bool> recursionStack;
         auto vertices = graph->getVertices();
         for (size_t i = 0; i < vertices.getLength(); ++i) {
             visited.add(vertices.get(i)->getId(), false);
@@ -70,13 +70,13 @@ private:
 public:
     ~TopologicalSortAlgorithm() override = default;
 
-    SharedPtr<MutableArraySequence<IVertex*>> execute(
-        const IGraph<Weight>* graph,
-        IVertex* startVertex = nullptr,
-        IVertex* endVertex = nullptr
+    SharedPtr<MutableArraySequence<IVertex<TIdentifier>*>> execute(
+        const IGraph<TWeight, TIdentifier>* graph,
+        IVertex<TIdentifier>* startVertex = nullptr,
+        IVertex<TIdentifier>* endVertex = nullptr
     ) const override {
 
-        const DirectedGraph<Weight>* directedGraph = dynamic_cast<const DirectedGraph<Weight>*>(graph);
+        const DirectedGraph<TWeight, TIdentifier>* directedGraph = dynamic_cast<const DirectedGraph<TWeight, TIdentifier>*>(graph);
         if (!directedGraph) {
             throw std::runtime_error("Topological sort can be applied to directed graphs only");
         }
@@ -87,18 +87,18 @@ public:
 
 
         auto vertices = graph->getVertices();
-        HashTableDictionary<size_t, bool> visited;
+        HashTableDictionary<TIdentifier, bool> visited;
         for (size_t i = 0; i < vertices.getLength(); ++i) {
             visited.add(vertices.get(i)->getId(), false);
         }
-        auto stack = MakeShared<MutableArraySequence<IVertex*>>();
+        auto stack = MakeShared<MutableArraySequence<IVertex<TIdentifier>*>>();
         for (size_t i = 0; i < vertices.getLength(); ++i) {
             if (!visited.get(vertices.get(i)->getId())) {
                 fillOrder(vertices.get(i), graph, visited, *stack);
             }
         }
 
-        auto result = MakeShared<MutableArraySequence<IVertex*>>();
+        auto result = MakeShared<MutableArraySequence<IVertex<TIdentifier>*>>();
         for (int i = stack->getLength() - 1; i >= 0; --i) {
             result->append(stack->get(i));
         }

@@ -1,36 +1,26 @@
-#pragma once
+#ifndef EDGE_H
+#define EDGE_H
 
 #include "IEdge.h"
 #include "IVertex.h"
-#include <memory>
+#include "Vertex.h"
+#include "SharedPtr.h"
 
-template <typename Weight>
-class Edge : public IEdge<Weight> {
+template <typename TWeight, typename TIdentifier>
+class Edge : public IEdge<TWeight, TIdentifier> {
 private:
-    IVertex* fromVertex_;
-    IVertex* toVertex_;
-    Weight weight_;
+    IVertex<TIdentifier>* from_;
+    IVertex<TIdentifier>* to_;
+    TWeight weight_;
 
 public:
-    Edge(IVertex* fromVertex, IVertex* toVertex, Weight weight)
-        : fromVertex_(fromVertex), toVertex_(toVertex), weight_(weight) {}
+    Edge(IVertex<TIdentifier>* from, IVertex<TIdentifier>* to, TWeight weight)
+        : from_(from), to_(to), weight_(weight) {}
     ~Edge() override = default;
 
-    IVertex* getFrom() const override { return fromVertex_; }
-    IVertex* getTo() const override { return toVertex_; }
-    Weight getWeight() const override { return weight_; }
-    void setWeight(Weight weight) override { weight_ = weight; }
-
-    // Конструктор копирования
-    Edge(const Edge& other) : fromVertex_(other.fromVertex_), toVertex_(other.toVertex_), weight_(other.weight_) {}
-
-    // Оператор присваивания
-    Edge& operator=(const Edge& other) {
-        if (this != &other) {
-            fromVertex_ = other.fromVertex_;
-            toVertex_ = other.toVertex_;
-            weight_ = other.weight_;
-        }
-        return *this;
-    }
+    IVertex<TIdentifier>* getFrom() const override { return from_; }
+    IVertex<TIdentifier>* getTo() const override { return to_; }
+    TWeight getWeight() const override { return weight_; }
 };
+
+#endif // EDGE_H

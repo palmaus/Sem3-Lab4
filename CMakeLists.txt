@@ -8,6 +8,7 @@ add_executable(Sem3-Lab4
         DataStructures/Student.cpp
         Tests/exec/InternalTests.cpp
         Tests/exec/TestRunner.cpp
+        GUI/GUI.cpp
 )
 
 target_include_directories(Sem3-Lab4 PUBLIC
@@ -18,6 +19,8 @@ target_include_directories(Sem3-Lab4 PUBLIC
         Vertex
         Edges
         Graph
+        GraphGenerator
+        GUI
         GraphAlgorithms
         Iterators
         DataStructures

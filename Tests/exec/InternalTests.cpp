@@ -2,31 +2,30 @@
 
 #include <ConnectedComponentsAlgorithm.h>
 #include <DijkstraAlgorithm.h>
+#include <GraphPath.h>
 #include <map>
 #include <MSTAlgorithm.h>
-#include <qstring.h>
+#include <set>
 #include <StronglyConnectedComponentsAlgorithm.h>
 #include <TopologicalSortAlgorithm.h>
 
 #include "DictionaryIterator.h"
-#include "HashTable.h"
-#include "IDictionary.h"
-#include "HashTableDictionary.h"
 #include "DirectedGraph.h"
+#include "HashTable.h"
+#include "HashTableDictionary.h"
+#include "IDictionary.h"
 #include "UndirectedGraph.h"
 #include "Vertex.h"
 
+#include "DynamicArray.h"
+#include "LinkedList.h"
+#include "MutableArraySequence.h"
+#include "MutableListSequence.h"
+#include "SharedPtr.h"
 #include "Student.h"
 #include "TestRunner.h"
-#include "MutableListSequence.h"
 #include "UniquePtr.h"
-#include "SharedPtr.h"
 #include "WeakPtr.h"
-#include "LinkedList.h"
-#include "DynamicArray.h"
-#include "MutableArraySequence.h"
-
-
 
 namespace internal_tests {
     // Вспомогательная функция для сравнения LinkedList
@@ -42,7 +41,6 @@ namespace internal_tests {
         }
         return true;
     }
-
 
     // Вспомогательная функция для сравнения DynamicArray
     template<typename T>
@@ -105,42 +103,42 @@ namespace internal_tests {
             if (hashTable.containsKey(999)) throw std::runtime_error("containsKey(999) returned true.");
         });
 
-       // Тест: Удаление элемента
-       runner.expectNoException("HashTable::remove element", []() {
+        // Тест: Удаление элемента
+        runner.expectNoException("HashTable::remove element", []() {
             HashTable<int, std::string> hashTable;
             hashTable.add(1, "one");
             hashTable.add(2, "two");
             hashTable.remove(2);
-            if(hashTable.containsKey(2))
-              throw std::runtime_error("containsKey(2) returned true after removing the element");
-       });
+            if (hashTable.containsKey(2))
+                throw std::runtime_error("containsKey(2) returned true after removing the element");
+        });
 
         // Тест: Исключение при получении несуществующего элемента
         runner.expectException<std::runtime_error>("HashTable::get non-existent element", []() {
-             HashTable<int, std::string> hashTable;
-             hashTable.get(2);
+            HashTable<int, std::string> hashTable;
+            hashTable.get(2);
         });
 
-         // Тест: Исключение при удалении несуществующего элемента
-         runner.expectException<std::runtime_error>("HashTable::remove non-existent element", []() {
-             HashTable<int, std::string> hashTable;
-             hashTable.remove(999);
+        // Тест: Исключение при удалении несуществующего элемента
+        runner.expectException<std::runtime_error>("HashTable::remove non-existent element", []() {
+            HashTable<int, std::string> hashTable;
+            hashTable.remove(999);
         });
-       // Тест: Итератор
+        // Тест: Итератор
         runner.expectNoException("HashTable::Iterator", []() {
-              HashTable<int, std::string> hashTable;
-              hashTable.add(1, "one");
-              hashTable.add(2, "two");
-              hashTable.add(3, "three");
-              hashTable.add(4, "four");
-              hashTable.add(5, "five");
+            HashTable<int, std::string> hashTable;
+            hashTable.add(1, "one");
+            hashTable.add(2, "two");
+            hashTable.add(3, "three");
+            hashTable.add(4, "four");
+            hashTable.add(5, "five");
 
-              int count = 0;
-              for (const auto& item : hashTable) {
-                  count++;
-              }
-              if (count != 5) throw std::runtime_error("Incorrect iterator count");
-       });
+            int count = 0;
+            for (const auto &item : hashTable) {
+                count++;
+            }
+            if (count != 5) throw std::runtime_error("Incorrect iterator count");
+        });
 
         // Тест: Итератор после удаления
         runner.expectNoException("HashTable::Iterator after remove", []() {
@@ -152,10 +150,10 @@ namespace internal_tests {
             hashTable.add(5, "five");
             hashTable.remove(5);
             int count = 0;
-            for (const auto& item : hashTable) {
-               count++;
+            for (const auto &item : hashTable) {
+                count++;
             }
-            if(count != 4) throw std::runtime_error("Incorrect iterator count after remove");
+            if (count != 4) throw std::runtime_error("Incorrect iterator count after remove");
         });
 
         // Тест: Увеличение таблицы (резайз) - граничные случаи
@@ -169,34 +167,38 @@ namespace internal_tests {
             HashTable<int, std::string> hashTableOne;
             hashTableOne.add(1, "one");
             if (hashTableOne.getCount() != 1) throw std::runtime_error("Incorrect count for table with one element");
-            if (hashTableOne.getCapacity() <= 0) throw std::runtime_error("Incorrect capacity for table with one element");
+            if (hashTableOne.getCapacity() <= 0)
+                throw std::runtime_error("Incorrect capacity for table with one element");
         });
 
-      // Тест: getAllItems
-       runner.expectNoException("HashTable::getAllItems", [](){
+        // Тест: getAllItems
+        runner.expectNoException("HashTable::getAllItems", []() {
             HashTable<int, std::string> hashTable;
             hashTable.add(1, "one");
             hashTable.add(2, "two");
             hashTable.add(3, "three");
 
             auto allItems = hashTable.getAllItems();
-            if(allItems->getLength() != hashTable.getCount()) throw std::runtime_error("Incorrect length from getAllItems");
+            if (allItems->getLength() != hashTable.getCount())
+                throw std::runtime_error("Incorrect length from getAllItems");
             for (int i = 0; i < allItems->getLength(); ++i) {
                 auto item = allItems->get(i);
-                if (hashTable.get(item.first) != item.second) throw std::runtime_error("Incorrect elements from getAllItems");
+                if (hashTable.get(item.first) != item.second)
+                    throw std::runtime_error("Incorrect elements from getAllItems");
             }
-       });
+        });
 
         // Тест: Удаление элемента из начала таблицы
-        runner.expectNoException("HashTable::remove element from beginning", [](){
+        runner.expectNoException("HashTable::remove element from beginning", []() {
             HashTable<int, std::string> hashTable;
             hashTable.add(100, "hundred");
             hashTable.remove(100);
-            if (hashTable.containsKey(100)) throw std::runtime_error("containsKey(100) returned true after removing the element from beginning.");
+            if (hashTable.containsKey(100))
+                throw std::runtime_error("containsKey(100) returned true after removing the element from beginning.");
         });
 
         // Тест: Коллизии
-        runner.expectNoException("HashTable::Collision handling", [](){
+        runner.expectNoException("HashTable::Collision handling", []() {
             struct CustomHash {
                 int operator()(int key) const {
                     return key % 10; // Намеренно создаем коллизии
@@ -206,31 +208,39 @@ namespace internal_tests {
             hashTableWithCollisions.add(10, "ten");
             hashTableWithCollisions.add(20, "twenty");
             hashTableWithCollisions.add(30, "thirty");
-            if (hashTableWithCollisions.get(10) != "ten") throw std::runtime_error("Incorrect get(10) after collisions.");
-            if (hashTableWithCollisions.get(20) != "twenty") throw std::runtime_error("Incorrect get(20) after collisions.");
-            if (hashTableWithCollisions.get(30) != "thirty") throw std::runtime_error("Incorrect get(30) after collisions.");
+            if (hashTableWithCollisions.get(10) != "ten")
+                throw std::runtime_error("Incorrect get(10) after collisions.");
+            if (hashTableWithCollisions.get(20) != "twenty")
+                throw std::runtime_error("Incorrect get(20) after collisions.");
+            if (hashTableWithCollisions.get(30) != "thirty")
+                throw std::runtime_error("Incorrect get(30) after collisions.");
             hashTableWithCollisions.remove(20);
-            if (hashTableWithCollisions.containsKey(20)) throw std::runtime_error("containsKey(20) after removing an element after collisions returned true.");
-            if (hashTableWithCollisions.get(10) != "ten") throw std::runtime_error("Incorrect get(10) after removing.");
-            if (hashTableWithCollisions.get(30) != "thirty") throw std::runtime_error("Incorrect get(30) after removing.");
+            if (hashTableWithCollisions.containsKey(20))
+                throw std::runtime_error(
+                        "containsKey(20) after removing an element after collisions returned true.");
+            if (hashTableWithCollisions.get(10) != "ten")
+                throw std::runtime_error("Incorrect get(10) after removing.");
+            if (hashTableWithCollisions.get(30) != "thirty")
+                throw std::runtime_error("Incorrect get(30) after removing.");
 
-         });
+        });
 
-         // Тест: Перезапись при коллизиях
-        runner.expectNoException("HashTable::Overwrite after collisions", [](){
+        // Тест: Перезапись при коллизиях
+        runner.expectNoException("HashTable::Overwrite after collisions", []() {
             struct CustomHash {
-               int operator()(int key) const {
+                int operator()(int key) const {
                     return key % 10; // Намеренно создаем коллизии
                 }
             };
             HashTable<int, std::string, CustomHash> hashTableWithCollisions;
             hashTableWithCollisions.add(30, "thirty");
             hashTableWithCollisions.add(30, "new_thirty");
-            if (hashTableWithCollisions.get(30) != "new_thirty") throw std::runtime_error("Incorrect overwrite after collisions.");
+            if (hashTableWithCollisions.get(30) != "new_thirty")
+                throw std::runtime_error("Incorrect overwrite after collisions.");
         });
 
         // Тест: Удаление всех элементов
-        runner.expectNoException("HashTable::remove all", [](){
+        runner.expectNoException("HashTable::remove all", []() {
             HashTable<int, std::string> hashTable;
             for (int i = 1; i < 30; ++i) {
                 hashTable.add(i, "value" + std::to_string(i));
@@ -238,7 +248,8 @@ namespace internal_tests {
             hashTable.removeAll();
             if (hashTable.getCount() != 0) throw std::runtime_error("Incorrect count after removing all elements.");
             for (int i = 1; i < 30; ++i) {
-               if (hashTable.containsKey(i)) throw std::runtime_error("containsKey returned true after removing all elements");
+                if (hashTable.containsKey(i))
+                    throw std::runtime_error("containsKey returned true after removing all elements");
             }
         });
     }
@@ -304,197 +315,197 @@ namespace internal_tests {
     }
 
     void testDirectedGraph() {
-    TestRunner runner;
+        TestRunner runner;
 
-    // Тест создания графа
-    runner.expectNoException("DirectedGraph::Create graph", []() {
-        DirectedGraph<int> graph;
-    });
+        // Тест создания графа
+        runner.expectNoException("DirectedGraph::Create graph", []() {
+            DirectedGraph<int, int> graph;
+        });
 
-    // Тест добавления вершин
-    runner.expectNoException("DirectedGraph::Add vertices", []() {
-        DirectedGraph<int> graph;
-        IVertex* v1 = new Vertex(1);
-        IVertex* v2 = new Vertex(2);
-        graph.addVertex(v1);
-        graph.addVertex(v2);
-    });
-
-    // Тест добавления ребер
-    runner.expectNoException("DirectedGraph::Add edges", []() {
-        DirectedGraph<int> graph;
-        IVertex* v1 = new Vertex(1);
-        IVertex* v2 = new Vertex(2);
-        IVertex* v3 = new Vertex(3);
-        graph.addVertex(v1);
-        graph.addVertex(v2);
-        graph.addVertex(v3);
-        graph.addEdge(v1, v2, 10);
-        graph.addEdge(v2, v3, 5);
-    });
-
-    // Тест получения вершин
-    runner.expectNoException("DirectedGraph::Get vertices", []() {
-        DirectedGraph<int> graph;
-         IVertex* v1 = new Vertex(1);
-         IVertex* v2 = new Vertex(2);
-        graph.addVertex(v1);
-        graph.addVertex(v2);
-        auto vertices = graph.getVertices();
-        if (vertices.getLength() != 2) {
-            throw std::runtime_error("Incorrect number of vertices");
-        }
-    });
-
-    // Тест получения ребер
-    runner.expectNoException("DirectedGraph::Get edges", []() {
-        DirectedGraph<int> graph;
-        IVertex* v1 = new Vertex(1);
-        IVertex* v2 = new Vertex(2);
-        IVertex* v3 = new Vertex(3);
-        graph.addVertex(v1);
-        graph.addVertex(v2);
-        graph.addVertex(v3);
-        graph.addEdge(v1, v2, 10);
-        graph.addEdge(v1, v3, 5);
-        auto edges = graph.getEdges(v1);
-        if (edges.getLength() != 2) {
-            throw std::runtime_error("Incorrect number of edges");
-        }
-    });
-
-    // Тест hasVertex
-    runner.expectNoException("DirectedGraph::hasVertex", []() {
-        DirectedGraph<int> graph;
-        IVertex* v1 = new Vertex(1);
-        IVertex* v2 = new Vertex(2);
-        graph.addVertex(v1);
-        if (!graph.hasVertex(v1)) throw std::runtime_error("Vertex should be present");
-        if (graph.hasVertex(v2)) throw std::runtime_error("Vertex should not be present");
-    });
-
-    // Тест hasEdge
-    runner.expectNoException("DirectedGraph::hasEdge", []() {
-        DirectedGraph<int> graph;
-        IVertex* v1 = new Vertex(1);
-        IVertex* v2 = new Vertex(2);
-        graph.addVertex(v1);
-        graph.addVertex(v2);
-        graph.addEdge(v1, v2, 1);
-        if (!graph.hasEdge(v1, v2)) throw std::runtime_error("Edge should be present");
-        if (graph.hasEdge(v2, v1)) throw std::runtime_error("Edge should not be present (directed)");
-        auto edges = graph.getEdges(v1);
-    });
-
-     // Тест getVertexById
-        runner.expectNoException("DirectedGraph::getVertexById", []() {
-            DirectedGraph<int> graph;
-             IVertex* v1 = new Vertex(1);
+        // Тест добавления вершин
+        runner.expectNoException("DirectedGraph::Add vertices", []() {
+            DirectedGraph<int, int> graph;
+            IVertex<int> *v1 = new Vertex<int>(1);
+            IVertex<int> *v2 = new Vertex<int>(2);
             graph.addVertex(v1);
-            IVertex* foundVertex = graph.getVertexById(1);
+            graph.addVertex(v2);
+        });
+
+        // Тест добавления ребер
+        runner.expectNoException("DirectedGraph::Add edges", []() {
+            DirectedGraph<int, int> graph;
+            IVertex<int> *v1 = new Vertex<int>(1);
+            IVertex<int> *v2 = new Vertex<int>(2);
+            IVertex<int> *v3 = new Vertex<int>(3);
+            graph.addVertex(v1);
+            graph.addVertex(v2);
+            graph.addVertex(v3);
+            graph.addEdge(v1, v2, 10);
+            graph.addEdge(v2, v3, 5);
+        });
+
+        // Тест получения вершин
+        runner.expectNoException("DirectedGraph::Get vertices", []() {
+            DirectedGraph<int, int> graph;
+            IVertex<int> *v1 = new Vertex<int>(1);
+            IVertex<int> *v2 = new Vertex<int>(2);
+            graph.addVertex(v1);
+            graph.addVertex(v2);
+            auto vertices = graph.getVertices();
+            if (vertices.getLength() != 2) {
+                throw std::runtime_error("Incorrect number of vertices");
+            }
+        });
+
+        // Тест получения ребер
+        runner.expectNoException("DirectedGraph::Get edges", []() {
+            DirectedGraph<int, int> graph;
+            IVertex<int> *v1 = new Vertex<int>(1);
+            IVertex<int> *v2 = new Vertex<int>(2);
+            IVertex<int> *v3 = new Vertex<int>(3);
+            graph.addVertex(v1);
+            graph.addVertex(v2);
+            graph.addVertex(v3);
+            graph.addEdge(v1, v2, 10);
+            graph.addEdge(v1, v3, 5);
+            auto edges = graph.getEdges(v1);
+            if (edges.getLength() != 2) {
+                throw std::runtime_error("Incorrect number of edges");
+            }
+        });
+
+        // Тест hasVertex
+        runner.expectNoException("DirectedGraph::hasVertex", []() {
+            DirectedGraph<int, int> graph;
+            IVertex<int> *v1 = new Vertex<int>(1);
+            IVertex<int> *v2 = new Vertex<int>(2);
+            graph.addVertex(v1);
+            if (!graph.hasVertex(v1)) throw std::runtime_error("Vertex should be present");
+            if (graph.hasVertex(v2)) throw std::runtime_error("Vertex should not be present");
+        });
+
+        // Тест hasEdge
+        runner.expectNoException("DirectedGraph::hasEdge", []() {
+            DirectedGraph<int, int> graph;
+            IVertex<int> *v1 = new Vertex<int>(1);
+            IVertex<int> *v2 = new Vertex<int>(2);
+            graph.addVertex(v1);
+            graph.addVertex(v2);
+            graph.addEdge(v1, v2, 1);
+            if (!graph.hasEdge(v1, v2)) throw std::runtime_error("Edge should be present");
+            if (graph.hasEdge(v2, v1)) throw std::runtime_error("Edge should not be present (directed)");
+            auto edges = graph.getEdges(v1);
+        });
+
+        // Тест getVertexById
+        runner.expectNoException("DirectedGraph::getVertexById", []() {
+            DirectedGraph<int, int> graph;
+            IVertex<int> *v1 = new Vertex<int>(1);
+            graph.addVertex(v1);
+            IVertex<int> *foundVertex = graph.getVertexById(1);
             if (!foundVertex) throw std::runtime_error("Vertex not found");
             if (foundVertex->getId() != 1) throw std::runtime_error("Incorrect vertex ID");
         });
     }
 
     void testUndirectedGraph() {
-     TestRunner runner;
+        TestRunner runner;
 
-    // Тест создания графа
-    runner.expectNoException("UndirectedGraph::Create graph", []() {
-        UndirectedGraph<int> graph;
-    });
+        // Тест создания графа
+        runner.expectNoException("UndirectedGraph::Create graph", []() {
+            UndirectedGraph<int, int> graph;
+        });
 
-    // Тест добавления вершин
-    runner.expectNoException("UndirectedGraph::Add vertices", []() {
-        UndirectedGraph<int> graph;
-        IVertex* v1 = new Vertex(1);
-        IVertex* v2 = new Vertex(2);
-        graph.addVertex(v1);
-        graph.addVertex(v2);
-    });
-
-    // Тест добавления ребер
-    runner.expectNoException("UndirectedGraph::Add edges", []() {
-        UndirectedGraph<int> graph;
-        IVertex* v1 = new Vertex(1);
-        IVertex* v2 = new Vertex(2);
-        graph.addVertex(v1);
-        graph.addVertex(v2);
-        graph.addEdge(v1, v2, 10);
-    });
-
-    // Тест получения вершин
-    runner.expectNoException("UndirectedGraph::Get vertices", []() {
-        UndirectedGraph<int> graph;
-        IVertex* v1 = new Vertex(1);
-        IVertex* v2 = new Vertex(2);
-        graph.addVertex(v1);
-        graph.addVertex(v2);
-        auto vertices = graph.getVertices();
-        if (vertices.getLength() != 2) {
-            throw std::runtime_error("Incorrect number of vertices");
-        }
-    });
-
-    // Тест получения ребер
-    runner.expectNoException("UndirectedGraph::Get edges", []() {
-        UndirectedGraph<int> graph;
-        IVertex* v1 = new Vertex(1);
-        IVertex* v2 = new Vertex(2);
-        graph.addVertex(v1);
-        graph.addVertex(v2);
-        graph.addEdge(v1, v2, 10);
-        auto edges = graph.getEdges(v1);
-        if (edges.getLength() != 1) {
-            throw std::runtime_error("Incorrect number of edges");
-        }
-    });
-
-    // Тест hasVertex
-    runner.expectNoException("UndirectedGraph::hasVertex", []() {
-        UndirectedGraph<int> graph;
-        IVertex* v1 = new Vertex(1);
-        IVertex* v2 = new Vertex(2);
-        graph.addVertex(v1);
-        if (!graph.hasVertex(v1)) throw std::runtime_error("Vertex should be present");
-        if (graph.hasVertex(v2)) throw std::runtime_error("Vertex should not be present");
-    });
-
-    // Тест hasEdge
-    runner.expectNoException("UndirectedGraph::hasEdge", []() {
-        UndirectedGraph<int> graph;
-        IVertex* v1 = new Vertex(1);
-        IVertex* v2 = new Vertex(2);
-        graph.addVertex(v1);
-        graph.addVertex(v2);
-        graph.addEdge(v1, v2, 1);
-        if (!graph.hasEdge(v1, v2)) throw std::runtime_error("Edge should be present");
-        if (!graph.hasEdge(v2, v1)) throw std::runtime_error("Edge should be present (undirected)");
-    });
-
-     // Тест getVertexById
-        runner.expectNoException("UndirectedGraph::getVertexById", []() {
-            UndirectedGraph<int> graph;
-           IVertex* v1 = new Vertex(1);
+        // Тест добавления вершин
+        runner.expectNoException("UndirectedGraph::Add vertices", []() {
+            UndirectedGraph<int, int> graph;
+            IVertex<int> *v1 = new Vertex<int>(1);
+            IVertex<int> *v2 = new Vertex<int>(2);
             graph.addVertex(v1);
-            IVertex* foundVertex = graph.getVertexById(1);
+            graph.addVertex(v2);
+        });
+
+        // Тест добавления ребер
+        runner.expectNoException("UndirectedGraph::Add edges", []() {
+            UndirectedGraph<int, int> graph;
+            IVertex<int> *v1 = new Vertex(1);
+            IVertex<int> *v2 = new Vertex(2);
+            graph.addVertex(v1);
+            graph.addVertex(v2);
+            graph.addEdge(v1, v2, 10);
+        });
+
+        // Тест получения вершин
+        runner.expectNoException("UndirectedGraph::Get vertices", []() {
+            UndirectedGraph<int, int> graph;
+            IVertex<int> *v1 = new Vertex<int>(1);
+            IVertex<int> *v2 = new Vertex<int>(2);
+            graph.addVertex(v1);
+            graph.addVertex(v2);
+            auto vertices = graph.getVertices();
+            if (vertices.getLength() != 2) {
+                throw std::runtime_error("Incorrect number of vertices");
+            }
+        });
+
+        // Тест получения ребер
+        runner.expectNoException("UndirectedGraph::Get edges", []() {
+            UndirectedGraph<int, int> graph;
+            IVertex<int> *v1 = new Vertex<int>(1);
+            IVertex<int> *v2 = new Vertex<int>(2);
+            graph.addVertex(v1);
+            graph.addVertex(v2);
+            graph.addEdge(v1, v2, 10);
+            auto edges = graph.getEdges(v1);
+            if (edges.getLength() != 1) {
+                throw std::runtime_error("Incorrect number of edges");
+            }
+        });
+
+        // Тест hasVertex
+        runner.expectNoException("UndirectedGraph::hasVertex", []() {
+            UndirectedGraph<int, int> graph;
+            IVertex<int> *v1 = new Vertex<int>(1);
+            IVertex<int> *v2 = new Vertex<int>(2);
+            graph.addVertex(v1);
+            if (!graph.hasVertex(v1)) throw std::runtime_error("Vertex should be present");
+            if (graph.hasVertex(v2)) throw std::runtime_error("Vertex should not be present");
+        });
+
+        // Тест hasEdge
+        runner.expectNoException("UndirectedGraph::hasEdge", []() {
+            UndirectedGraph<int, int> graph;
+            IVertex<int> *v1 = new Vertex<int>(1);
+            IVertex<int> *v2 = new Vertex<int>(2);
+            graph.addVertex(v1);
+            graph.addVertex(v2);
+            graph.addEdge(v1, v2, 1);
+            if (!graph.hasEdge(v1, v2)) throw std::runtime_error("Edge should be present");
+            if (!graph.hasEdge(v2, v1)) throw std::runtime_error("Edge should be present (undirected)");
+        });
+
+        // Тест getVertexById
+        runner.expectNoException("UndirectedGraph::getVertexById", []() {
+            UndirectedGraph<int, int> graph;
+            IVertex<int> *v1 = new Vertex<int>(1);
+            graph.addVertex(v1);
+            IVertex<int> *foundVertex = graph.getVertexById(1);
             if (!foundVertex) throw std::runtime_error("Vertex not found");
             if (foundVertex->getId() != 1) throw std::runtime_error("Incorrect vertex ID");
         });
     }
 
-    MutableArraySequence<IVertex*> createVertices(std::vector<int> ids) {
-        MutableArraySequence<IVertex*> vertices;
+    MutableArraySequence<IVertex<int> *> createVertices(std::vector<int> ids) {
+        MutableArraySequence<IVertex<int> *> vertices;
         for (int id : ids) {
-            vertices.append(new Vertex(id));
+            vertices.append(new Vertex<int>(id));
         }
         return vertices;
     }
 
-    DirectedGraph<int> createDirectedGraphForTests() {
-        DirectedGraph<int> graph;
-        MutableArraySequence<IVertex*> vertices = createVertices({1, 2, 3, 4, 5});
+    DirectedGraph<int, int> createDirectedGraphForTests() {
+        DirectedGraph<int, int> graph;
+        MutableArraySequence<IVertex<int> *> vertices = createVertices({1, 2, 3, 4, 5});
         for (size_t i = 0; i < vertices.getLength(); ++i) {
             graph.addVertex(vertices.get(i));
         }
@@ -509,9 +520,9 @@ namespace internal_tests {
         return graph;
     }
 
-    UndirectedGraph<int> createUndirectedGraphForTests() {
-        UndirectedGraph<int> graph;
-        MutableArraySequence<IVertex*> vertices = createVertices({1, 2, 3, 4, 5});
+    UndirectedGraph<int, int> createUndirectedGraphForTests() {
+        UndirectedGraph<int, int> graph;
+        MutableArraySequence<IVertex<int> *> vertices = createVertices({1, 2, 3, 4, 5});
         for (size_t i = 0; i < vertices.getLength(); ++i) {
             graph.addVertex(vertices.get(i));
         }
@@ -528,69 +539,136 @@ namespace internal_tests {
         TestRunner runner;
 
         runner.expectNoException("DijkstraAlgorithm::Find shortest path", []() {
-            DirectedGraph<int> graph = createDirectedGraphForTests();
-            DijkstraAlgorithm<int> dijkstra;
+            DirectedGraph<int, int> graph = createDirectedGraphForTests();
+            DijkstraAlgorithm<int, int> dijkstra;
 
-            IVertex* startVertex = graph.getVertexById(1);
-            IVertex* endVertex = graph.getVertexById(5);
+            IVertex<int> *startVertex = graph.getVertexById(1);
+            IVertex<int> *endVertex = graph.getVertexById(5);
 
             if (!startVertex || !endVertex) {
                 throw std::runtime_error("Start or end vertex not found in graph.");
             }
 
-            auto distances = dijkstra.execute(&graph, startVertex, endVertex);
-            if (!distances) {
+            auto dijkstraResult = dijkstra.execute(&graph, startVertex, endVertex);
+            if (!dijkstraResult) {
                 throw std::runtime_error("Dijkstra's algorithm returned nullptr.");
             }
+            auto distances = dijkstraResult->first;
+            auto path = dijkstraResult->second;
+
             std::map<int, int> expectedDistances = {
-                {1, 0}, {2, 8}, {3, 8}, {4, 5}, {5, 7}
+            {1, 0}, {2, 8}, {3, 8}, {4, 5}, {5, 7}
             };
+            std::vector<int> expectedPath = {1, 4, 5};
+
 
             auto vertices = graph.getVertices();
             for (size_t i = 0; i < vertices.getLength(); ++i) {
                 int vertexId = vertices.get(i)->getId();
-                if (distances->get(i) != expectedDistances[vertexId]) {
+                if (distances.get(i) != expectedDistances[vertexId]){
                     throw std::runtime_error("Incorrect shortest path distance for vertex " + std::to_string(vertexId) +
-                                           ", expected: " + std::to_string(expectedDistances[vertexId]) +
-                                           ", actual: " + QString::number(distances->get(i)).toStdString());
+                                             ", expected: " + std::to_string(expectedDistances[vertexId]) +
+                                             ", actual: " + std::to_string(distances.get(i)));
+                }
+            }
+
+            if (path.getLength() != expectedPath.size()) {
+                throw std::runtime_error("Shortest path length is incorrect.");
+            }
+            for (size_t i = 0; i < path.getLength(); ++i) {
+                if (path.getVertices().get(i)->getId() != expectedPath[i]) {
+                    throw std::runtime_error("Incorrect vertex in shortest path at position " + std::to_string(i));
                 }
             }
         });
     }
 
     void testMSTAlgorithm() {
-         TestRunner runner;
-         runner.expectNoException("MSTAlgorithm::Find MST", []() {
-              UndirectedGraph<int> graph = createUndirectedGraphForTests();
-              MSTAlgorithm<int> mstAlgo;
-              auto mstEdges = mstAlgo.execute(&graph);
-              if(!mstEdges) {
-                   throw std::runtime_error("MST Algorithm returned nullptr");
-              }
-         });
+        TestRunner runner;
+        runner.expectNoException("MSTAlgorithm::Find MST", []() {
+            UndirectedGraph<int, int> graph = createUndirectedGraphForTests();
+            MSTAlgorithm<int, int> mstAlgo;
+            auto mstEdges = mstAlgo.execute(&graph);
+            if (!mstEdges) {
+                throw std::runtime_error("MST Algorithm returned nullptr");
+            }
+        });
     }
 
     void testConnectedComponentsAlgorithm() {
-         TestRunner runner;
-         runner.expectNoException("ConnectedComponentsAlgorithm::Find CC", []() {
-              UndirectedGraph<int> graph = createUndirectedGraphForTests();
-              ConnectedComponentsAlgorithm<int> ccAlgo;
-              auto components = ccAlgo.execute(&graph);
-               if(!components) {
-                    throw std::runtime_error("Connected Components Algorithm returned nullptr");
-               }
+        TestRunner runner;
+        runner.expectNoException("ConnectedComponentsAlgorithm::Find CC", []() {
+            UndirectedGraph<int, int> graph = createUndirectedGraphForTests();
+            ConnectedComponentsAlgorithm<int, int> ccAlgo;
+            auto components = ccAlgo.execute(&graph);
+            if (!components) {
+                throw std::runtime_error("Connected Components Algorithm returned nullptr");
+            }
         });
     }
 
     void testStronglyConnectedComponentsAlgorithm() {
-         TestRunner runner;
-          runner.expectNoException("StronglyConnectedComponentsAlgorithm::Find SCC", []() {
-              DirectedGraph<int> graph = createDirectedGraphForTests();
-              StronglyConnectedComponentsAlgorithm<int> sccAlgo;
-               auto components = sccAlgo.execute(&graph);
-                if(!components) {
-                    throw std::runtime_error("Strongly Connected Components Algorithm returned nullptr");
+        TestRunner runner;
+        runner.expectNoException("StronglyConnectedComponentsAlgorithm::Find SCC", []() {
+            DirectedGraph<int, int> graph = createDirectedGraphForTests();
+            StronglyConnectedComponentsAlgorithm<int, int> sccAlgo;
+            auto components = sccAlgo.execute(&graph);
+            if(!components) {
+                throw std::runtime_error("Strongly Connected Components Algorithm returned nullptr");
+            }
+
+            // Проверяем количество компонент
+            if (components->getLength() != 2) {
+                throw std::runtime_error("Incorrect number of strongly connected components. Expected 2, got " +
+                                         std::to_string(components->getLength()));
+            }
+
+            // Проверяем состав компонент.
+            std::set<int> component1;
+            std::set<int> component2;
+
+            // Заполняем наборы из результата алгоритма
+            for (size_t i = 0; i < components->getLength(); ++i) {
+                auto& component = components->get(i); // component - ссылка на MutableArraySequence<IVertex<int>*>
+
+                if (component.getLength() == 1)
+                {
+                    IVertex<int>* vertex = component.get(0);
+                    if (!vertex) {
+                        throw std::runtime_error("component.get(0) returned nullptr");
+                    }
+                    component1.insert(vertex->getId()); // Должен вызываться Vertex::getId()
                 }
+                else if(component.getLength() == 4)
+                {
+                    for(size_t j = 0; j < component.getLength(); j++)
+                    {
+                        IVertex<int>* vertex = component.get(j);
+                         if (!vertex) {
+                            throw std::runtime_error("component.get(" + std::to_string(j) + ") returned nullptr");
+                         }
+                          // Распечатываем тип вершины для отладки
+                          std::cerr << "Component 2, vertex[" << j << "] type: " << typeid(*vertex).name() << ", id: " << vertex->getId() << std::endl;
+                          component2.insert(vertex->getId());
+                    }
+                }
+                else
+                   throw std::runtime_error("Incorrect component size");
+            }
+
+
+            // Ожидаемые компоненты
+            std::set<int> expectedComponent1 = {1};
+            std::set<int> expectedComponent2 = {2, 3, 4, 5};
+
+
+            if (component1 != expectedComponent1) {
+               throw std::runtime_error("Incorrect component 1.  Expected {1}");
+            }
+
+             if (component2 != expectedComponent2) {
+               throw std::runtime_error("Incorrect component 2.  Expected {2, 3, 4, 5}");
+            }
         });
     }
 
@@ -921,7 +999,8 @@ namespace internal_tests {
 
             // Изменяем seq2 и проверяем, что seq1 не изменилась
             seq2.append(3);
-            if (sequencesEqual(&seq1, &seq2)) throw std::runtime_error("Original sequence changed after modifying the copy.");
+            if (sequencesEqual(&seq1, &seq2))
+                throw std::runtime_error("Original sequence changed after modifying the copy.");
         });
 
         // Тест присваивания мутабельной последовательности
@@ -937,7 +1016,8 @@ namespace internal_tests {
 
             // Изменяем seq2 и проверяем, что seq1 не изменилась
             seq2.append(3);
-            if (sequencesEqual(&seq1, &seq2)) throw std::runtime_error("Original sequence changed after modifying the assigned sequence.");
+            if (sequencesEqual(&seq1, &seq2))
+                throw std::runtime_error("Original sequence changed after modifying the assigned sequence.");
         });
 
         // Тест методов tryGet, tryGetFirst, tryGetLast
@@ -1084,7 +1164,8 @@ namespace internal_tests {
 
             // Изменяем seq2 и проверяем, что seq1 не изменилась
             seq2.append(3);
-            if (sequencesEqual(&seq1, &seq2)) throw std::runtime_error("Original sequence changed after modifying the copy.");
+            if (sequencesEqual(&seq1, &seq2))
+                throw std::runtime_error("Original sequence changed after modifying the copy.");
         });
 
         // Тест присваивания мутабельной последовательности
@@ -1100,7 +1181,8 @@ namespace internal_tests {
 
             // Изменяем seq2 и проверяем, что seq1 не изменилась
             seq2.append(3);
-            if (sequencesEqual(&seq1, &seq2)) throw std::runtime_error("Original sequence changed after modifying the assigned sequence.");
+            if (sequencesEqual(&seq1, &seq2))
+                throw std::runtime_error("Original sequence changed after modifying the assigned sequence.");
         });
 
         // Тест методов tryGet, tryGetFirst, tryGetLast
@@ -1169,7 +1251,7 @@ namespace internal_tests {
         // 5.  Тест get()
         runner.expectNoException("SharedPtr::get() method", []() {
             SharedPtr<int> ptr(new int(10));
-            int* rawPtr = ptr.get();
+            int *rawPtr = ptr.get();
             if (*rawPtr != 10) {
                 throw std::runtime_error("Incorrect raw pointer access.");
             }
@@ -1219,6 +1301,7 @@ namespace internal_tests {
             }
         });
     }
+
     void testUniquePtr() {
         TestRunner runner;
 
@@ -1245,16 +1328,16 @@ namespace internal_tests {
 
         // 4. Тест get()
         runner.expectNoException("UniquePtr::get() method", []() {
-           UniquePtr<int> ptr(new int(5));
-           if (*(ptr.get()) != 5) {
-               throw std::runtime_error("Incorrect get() usage.");
-           }
+            UniquePtr<int> ptr(new int(5));
+            if (*(ptr.get()) != 5) {
+                throw std::runtime_error("Incorrect get() usage.");
+            }
         });
 
         // 5. Тест release()
         runner.expectNoException("UniquePtr::release() method", []() {
             UniquePtr<int> ptr(new int(5));
-            int* rawPtr = ptr.release();
+            int *rawPtr = ptr.release();
             if (ptr.get() != nullptr) {
                 throw std::runtime_error("Pointer not released.");
             }
@@ -1266,11 +1349,11 @@ namespace internal_tests {
 
         // 6. Тест reset()
         runner.expectNoException("UniquePtr::reset() method", []() {
-           UniquePtr<int> ptr(new int(5));
-           ptr.reset(new int(10));
-           if (*ptr != 10) {
-               throw std::runtime_error("Incorrect reset() usage.");
-           }
+            UniquePtr<int> ptr(new int(5));
+            ptr.reset(new int(10));
+            if (*ptr != 10) {
+                throw std::runtime_error("Incorrect reset() usage.");
+            }
         });
 
         // 7. Тест reset() с nullptr
@@ -1281,7 +1364,6 @@ namespace internal_tests {
                 throw std::runtime_error("Pointer not reset to nullptr.");
             }
         });
-
 
         // 8. Тест конструктора перемещения
         runner.expectNoException("UniquePtr::Move constructor", []() {
@@ -1356,6 +1438,140 @@ namespace internal_tests {
             if (weakPtr1.use_count() != 1) {
                 throw std::runtime_error("Incorrect use_count() after SharedPtr destruction.");
             }
+        });
+    }
+
+    void testGraphPath() {
+        TestRunner runner;
+
+        // 1. Тест создания GraphPath
+        runner.expectNoException("GraphPath::Creation", []() {
+            GraphPath<int, int> path;
+        });
+
+        // 2. Тест getStartVertex и getEndVertex на пустом пути
+        runner.expectNoException("GraphPath::Start and end vertex on empty path", []() {
+            GraphPath<int, int> path;
+            if (path.getStartVertex() != nullptr || path.getEndVertex() != nullptr) {
+                throw std::runtime_error("Start or end vertex should be nullptr for empty path.");
+            }
+        });
+
+        // 3. Тест getStartVertex и getEndVertex на непустом пути
+        runner.expectNoException("GraphPath::Start and end vertex on non-empty path", []() {
+            MutableArraySequence<IVertex<int> *> vertices;
+            vertices.append(new Vertex<int>(1));
+            vertices.append(new Vertex<int>(2));
+            GraphPath<int, int> path(vertices);
+            if (path.getStartVertex()->getId() != 1 || path.getEndVertex()->getId() != 2) {
+                throw std::runtime_error("Incorrect start or end vertex.");
+            }
+        });
+
+        // 4. Тест containsVertex
+        runner.expectNoException("GraphPath::containsVertex", []() {
+            MutableArraySequence<IVertex<int> *> vertices;
+            vertices.append(new Vertex<int>(1));
+            vertices.append(new Vertex<int>(2));
+            GraphPath<int, int> path(vertices);
+            if (!path.containsVertex(new Vertex<int>(1))) {
+                throw std::runtime_error("Path should contain vertex 1.");
+            }
+            if (path.containsVertex(new Vertex<int>(3))) {
+                throw std::runtime_error("Path should not contain vertex 3.");
+            }
+        });
+
+        // 5. Тест canConcatenate и concatenate
+        runner.expectNoException("GraphPath::canConcatenate and concatenate", []() {
+            MutableArraySequence<IVertex<int> *> vertices1;
+            vertices1.append(new Vertex<int>(1));
+            vertices1.append(new Vertex<int>(2));
+            GraphPath<int, int> path1(vertices1);
+
+            MutableArraySequence<IVertex<int> *> vertices2;
+            vertices2.append(new Vertex<int>(2));
+            vertices2.append(new Vertex<int>(3));
+            GraphPath<int, int> path2(vertices2);
+
+            if (!path1.canConcatenate(path2)) {
+                throw std::runtime_error("Paths should be concatenable.");
+            }
+
+            GraphPath<int, int> concatenatedPath = path1.concatenate(path2);
+            if (concatenatedPath.getLength() != 3 ||
+                concatenatedPath.getStartVertex()->getId() != 1 ||
+                concatenatedPath.getEndVertex()->getId() != 3) {
+                throw std::runtime_error("Incorrectly concatenated path.");
+            }
+        });
+
+        // 6. Тест canConcatenate, когда пути не могут быть объединены
+        runner.expectNoException("GraphPath::canConcatenate negative case", []() {
+            MutableArraySequence<IVertex<int> *> vertices1;
+            vertices1.append(new Vertex<int>(1));
+            vertices1.append(new Vertex<int>(2));
+            GraphPath<int, int> path1(vertices1);
+
+            MutableArraySequence<IVertex<int> *> vertices2;
+            vertices2.append(new Vertex<int>(3));
+            vertices2.append(new Vertex<int>(4));
+            GraphPath<int, int> path2(vertices2);
+
+            if (path1.canConcatenate(path2)) {
+                throw std::runtime_error("Paths should not be concatenable.");
+            }
+        });
+
+        // 7. Тест исключения concatenate, когда пути не могут быть объединены
+        runner.expectException<std::invalid_argument>("GraphPath::concatenate exception case", []() {
+            MutableArraySequence<IVertex<int> *> vertices1;
+            vertices1.append(new Vertex<int>(1));
+            vertices1.append(new Vertex<int>(2));
+            GraphPath<int, int> path1(vertices1);
+
+            MutableArraySequence<IVertex<int> *> vertices2;
+            vertices2.append(new Vertex<int>(3));
+            vertices2.append(new Vertex<int>(4));
+            GraphPath<int, int> path2(vertices2);
+
+            path1.concatenate(path2); // Должно выбросить исключение
+        });
+
+        // 8. Тест containsEdge (требует создания графа и ребер)
+        runner.expectNoException("GraphPath::containsEdge", []() {
+            DirectedGraph<int, int> graph = createDirectedGraphForTests();
+            MutableArraySequence<IVertex<int> *> vertices;
+            vertices.append(graph.getVertexById(1));
+            vertices.append(graph.getVertexById(2));
+            GraphPath<int, int> path(vertices);
+            auto edges = graph.getEdges(graph.getVertexById(1));
+            IEdge<int, int>* edge1_2 = nullptr;
+            for(size_t i = 0; i < edges.getLength(); ++i) {
+                if(edges.get(i)->getTo()->getId() == 2) {
+                    edge1_2 = edges.get(i);
+                    break;
+                }
+            }
+
+
+            if (!path.containsEdge(&graph, edge1_2)) {
+                throw std::runtime_error("Path should contain edge 1->2.");
+            }
+             UndirectedGraph<int, int> undirectedGraph;
+             IVertex<int>* v1 = new Vertex<int>(1);
+             IVertex<int>* v2 = new Vertex<int>(2);
+             undirectedGraph.addVertex(v1);
+             undirectedGraph.addVertex(v2);
+             undirectedGraph.addEdge(v1, v2, 10);
+             MutableArraySequence<IVertex<int> *> vertices2;
+             vertices2.append(v1);
+             vertices2.append(v2);
+             GraphPath<int, int> path2(vertices2);
+             auto edges2 = undirectedGraph.getEdges(v1);
+             if (!path2.containsEdge(&undirectedGraph, edges2.get(0))) {
+                 throw std::runtime_error("Path should contain edge in undirected graph.");
+             }
         });
     }
 }

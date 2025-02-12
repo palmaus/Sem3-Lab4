@@ -44,6 +44,10 @@ void runAllTests() {
          internal_tests::testUndirectedGraph
     });
 
+    runner.runTestGroup("GraphPath Tests", {
+         internal_tests::testGraphPath
+    });
+
     runner.runTestGroup("Graph Algorithms Tests", { // Добавлена группа тестов для алгоритмов
         internal_tests::testMSTAlgorithm,
         internal_tests::testDijkstraAlgorithm,
