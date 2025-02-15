@@ -14,6 +14,8 @@ public:
 
     explicit MutableArraySequence(const DynamicArray<T> &array) : base{DynamicArray<T>(array)} {}
 
+    MutableArraySequence(const MutableArraySequence<T>& other) : base(other.base) {}
+
     const T &getFirst() const override {
         return base.getByIndex(0);
     }

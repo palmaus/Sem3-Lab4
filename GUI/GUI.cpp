@@ -8,7 +8,7 @@
 #include <QPainter>
 
 
-IVertex<int>* GraphVisualizer::findVertexAt(const QPointF& pos) {
+IVertex<int, int>* GraphVisualizer::findVertexAt(const QPointF& pos) {
     for (QGraphicsItem* item : scene_->items(pos)) {
         if (QGraphicsEllipseItem* circle = dynamic_cast<QGraphicsEllipseItem*>(item)) {
             for (int vertexId : vertexPositions_.keys()) {
@@ -48,12 +48,13 @@ bool GraphVisualizer::eventFilter(QObject* obj, QEvent* event) {
             auto mouseEvent = static_cast<QMouseEvent*>(event);
             if (mouseEvent->button() == Qt::LeftButton && isDrawingEdge_) {
                 QPointF pos = view_->mapToScene(mouseEvent->pos());
-                IVertex<int>* endVertex = findVertexAt(pos);
+                IVertex<int, int>* endVertex = findVertexAt(pos);
                 if (endVertex && endVertex != startVertex_) {
                     bool ok;
                     int weight = QInputDialog::getInt(this, "Добавить ребро", "Введите вес ребра:", 1, 1, std::numeric_limits<int>::max(), 1, &ok);
                     if (ok) {
                         currentGraph_->addEdge(startVertex_, endVertex, weight);
+                        shortestPath_.reset();
                         updateGraphVisualization();
                     }
                 }
@@ -75,13 +76,10 @@ void GraphVisualizer::onGraphTypeChanged(int index) {
 void GraphVisualizer::showContextMenu(const QPointF& pos) {
     QMenu contextMenu;
     QAction* addVertexAction = contextMenu.addAction("Добавить вершину");
-    QAction* addEdgeAction = contextMenu.addAction("Добавить ребро");
     QAction* selectedAction = contextMenu.exec(view_->mapToGlobal(view_->mapFromScene(pos)));
 
     if (selectedAction == addVertexAction) {
         addVertex(pos);
-    } else if (selectedAction == addEdgeAction) {
-        addEdge(pos);
     }
 }
 
@@ -89,16 +87,13 @@ void GraphVisualizer::addVertex(const QPointF& pos) {
     bool ok;
     int vertexID = QInputDialog::getInt(this, "Добавить вершину", "Введите ID вершины:", 0, 0, 1000, 1, &ok);
     if (ok) {
-        IVertex<int>* vertex = new Vertex<int>(vertexID);
+        IVertex<int, int>* vertex = new Vertex<int, int>(vertexID);
         currentGraph_->addVertex(vertex);
         vertexPositions_[vertexID] = pos;
+        shortestPath_.reset();
         updateGraphVisualization();
     }
 }
-
-void GraphVisualizer::addEdge(const QPointF&) {
-}
-
 
 void GraphVisualizer::clearGraph() {
     scene_->clear();
@@ -188,13 +183,13 @@ void GraphVisualizer::generateRandomGraph() {
 
 void GraphVisualizer::findShortestPath()
 {
- bool ok1, ok2;
+    bool ok1, ok2;
     int from = QInputDialog::getInt(this, "Кратчайший путь", "Начальная вершина:", 0, 0, 1000, 1, &ok1);
     int to = QInputDialog::getInt(this, "Кратчайший путь", "Конечная вершина:", 0, 0, 1000, 1, &ok2);
 
      if (ok1 && ok2) {
-        IVertex<int>* fromVertex = currentGraph_->getVertexById(from);
-        IVertex<int>* toVertex = currentGraph_->getVertexById(to);
+        IVertex<int, int>* fromVertex = currentGraph_->getVertexById(from);
+        IVertex<int, int>* toVertex = currentGraph_->getVertexById(to);
         if (!fromVertex || !toVertex) {
             QMessageBox::warning(this, "Ошибка", "Одна из вершин не найдена.");
             return;
@@ -260,7 +255,7 @@ void GraphVisualizer::findConnectedComponents()
 
 void GraphVisualizer::findMST()
 {
-   try {
+    try {
         MSTAlgorithm<int, int> mstAlgo;
         IGraph<int, int>* undirectedGraph = dynamic_cast<UndirectedGraph<int, int>*>(currentGraph_);
         if (!undirectedGraph) {
@@ -280,27 +275,27 @@ void GraphVisualizer::findMST()
 
 void GraphVisualizer::findTopologicalSort()
 {
-  try {
-        TopologicalSortAlgorithm<int, int> topologicalSort;
-        IGraph<int, int>* directedGraph = dynamic_cast<DirectedGraph<int, int>*>(currentGraph_);
-        if (!directedGraph) {
-            QMessageBox::warning(this, "Ошибка", "Топологическую сортировку можно искать только в ориентированном графе.");
-            return;
-        }
-        auto result = topologicalSort.execute(directedGraph);
-        QString output = "Топологическая сортировка:\n";
-        for (size_t i = 0; i < result->getLength(); ++i) {
-            output += QString::number(result->get(i)->getId()) + " ";
-        }
-        QMessageBox::information(this, "Результат", output);
-    } catch (const std::exception& e) {
-        QMessageBox::warning(this, "Ошибка", e.what());
-    }
+      try {
+            TopologicalSortAlgorithm<int, int> topologicalSort;
+            IGraph<int, int>* directedGraph = dynamic_cast<DirectedGraph<int, int>*>(currentGraph_);
+            if (!directedGraph) {
+                QMessageBox::warning(this, "Ошибка", "Топологическую сортировку можно искать только в ориентированном графе.");
+                return;
+            }
+            auto result = topologicalSort.execute(directedGraph);
+            QString output = "Топологическая сортировка:\n";
+            for (size_t i = 0; i < result->getLength(); ++i) {
+                output += QString::number(result->get(i)->getId()) + " ";
+            }
+            QMessageBox::information(this, "Результат", output);
+      } catch (const std::exception& e) {
+            QMessageBox::warning(this, "Ошибка", e.what());
+      }
 }
 
 void GraphVisualizer::findStronglyConnectedComponents()
 {
-   try {
+    try {
         StronglyConnectedComponentsAlgorithm<int, int> stronglyConnectedComponentsAlgorithm;
         IGraph<int, int>* directedGraph = dynamic_cast<DirectedGraph<int, int>*>(currentGraph_);
         if (!directedGraph) {
@@ -329,11 +324,11 @@ void GraphVisualizer::updateGraphVisualization() {
 
     auto vertices = currentGraph_->getVertices();
     for (size_t i = 0; i < vertices.getLength(); ++i) {
-        IVertex<int>* from = vertices.get(i);
+        IVertex<int, int>* from = vertices.get(i);
         if (vertexPositions_.contains(from->getId())) {
             auto edges = currentGraph_->getEdges(from);
             for (size_t j = 0; j < edges.getLength(); ++j) {
-                IVertex<int>* to = edges.get(j)->getTo();
+                IVertex<int, int>* to = edges.get(j)->getTo();
                 int weight = edges.get(j)->getWeight();
                 if (vertexPositions_.contains(to->getId())) {
                     QPointF fromPos = vertexPositions_[from->getId()];
@@ -352,7 +347,7 @@ void GraphVisualizer::updateGraphVisualization() {
     }
 
     for (size_t i = 0; i < vertices.getLength(); ++i) {
-        IVertex<int>* vertex = vertices.get(i);
+        IVertex<int, int>* vertex = vertices.get(i);
         if (vertexPositions_.contains(vertex->getId())) {
             QPointF pos = vertexPositions_[vertex->getId()];
             QBrush brush(Qt::lightGray);
@@ -365,9 +360,9 @@ void GraphVisualizer::updateGraphVisualization() {
             text->setPos(pos.x() - 10, pos.y() - 10);
         }
     }
-     scene_->setSceneRect(scene_->itemsBoundingRect());
-      qreal maxScale = 2.0;
-      if (view_->transform().m11() > maxScale) {
+    scene_->setSceneRect(scene_->itemsBoundingRect());
+    qreal maxScale = 2.0;
+    if (view_->transform().m11() > maxScale) {
           view_->scale(maxScale / view_->transform().m11(), maxScale / view_->transform().m22());
       }
 }

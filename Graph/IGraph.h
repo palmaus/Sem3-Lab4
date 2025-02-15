@@ -12,15 +12,15 @@ class IGraph {
 public:
     virtual ~IGraph() = default;
 
-    virtual void addVertex(IVertex<TIdentifier>* vertex) = 0;
-    virtual void addEdge(IVertex<TIdentifier>* fromVertex, IVertex<TIdentifier>* toVertex, TWeight weight) = 0;
-    virtual void removeVertex(IVertex<TIdentifier>* vertex) = 0;
-    virtual void removeEdge(IVertex<TIdentifier>* fromVertex, IVertex<TIdentifier>* toVertex) = 0;
-    virtual MutableArraySequence<IVertex<TIdentifier>*> getVertices() const = 0;
-    virtual MutableArraySequence<IEdge<TWeight, TIdentifier>*> getEdges(IVertex<TIdentifier>* vertex) const = 0;
-    virtual IVertex<TIdentifier>* getVertexById(TIdentifier vertexId) const = 0;
-    virtual bool hasVertex(IVertex<TIdentifier>* vertex) const = 0;
-    virtual bool hasEdge(IVertex<TIdentifier>* fromVertex, IVertex<TIdentifier>* toVertex) const = 0;
+    virtual void addVertex(IVertex<TWeight, TIdentifier>* vertex) = 0;
+    virtual void addEdge(IVertex<TWeight, TIdentifier>* fromVertex, IVertex<TWeight, TIdentifier>* toVertex, TWeight weight) = 0;
+    virtual void removeVertex(IVertex<TWeight, TIdentifier>* vertex) = 0;
+    virtual void removeEdge(IVertex<TWeight, TIdentifier>* fromVertex, IVertex<TWeight, TIdentifier>* toVertex) = 0;
+    virtual MutableArraySequence<IVertex<TWeight, TIdentifier>*> getVertices() const = 0;
+    virtual MutableArraySequence<IEdge<TWeight, TIdentifier>*> getEdges(IVertex<TWeight, TIdentifier>* vertex) const = 0;
+    virtual IVertex<TWeight, TIdentifier>* getVertexById(TIdentifier vertexId) const = 0;
+    virtual bool hasVertex(IVertex<TWeight, TIdentifier>* vertex) const = 0;
+    virtual bool hasEdge(IVertex<TWeight, TIdentifier>* fromVertex, IVertex<TWeight, TIdentifier>* toVertex) const = 0;
 };
 
 #endif // IGRAPH_H

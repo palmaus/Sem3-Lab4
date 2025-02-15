@@ -13,7 +13,7 @@ Person::Person(const std::string& firstName, const std::string& lastName, int ID
     std::copy(dob, dob + 3, this->dateOfBirth);
 }
 
-Person::~Person() {}
+Person::~Person() = default;
 
 Person::Person(const Person& other) : firstName(other.firstName), lastName(other.lastName), ID(other.ID) {
     std::copy(other.dateOfBirth, other.dateOfBirth + 3, dateOfBirth);

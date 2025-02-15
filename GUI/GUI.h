@@ -131,11 +131,11 @@ private:
     QMap<int, QPointF> vertexPositions_;
     std::optional<GraphPath<int, int>> shortestPath_;
 
-    IVertex<int>* startVertex_ = nullptr;
+    IVertex<int, int>* startVertex_ = nullptr;
     bool isDrawingEdge_ = false;
     QGraphicsLineItem* currentEdge_;
 
-    IVertex<int>* findVertexAt(const QPointF& pos);
+    IVertex<int, int>* findVertexAt(const QPointF& pos);
 };
 
 #endif // GUI_H

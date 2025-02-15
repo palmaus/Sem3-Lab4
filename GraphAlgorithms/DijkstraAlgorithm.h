@@ -10,7 +10,6 @@
 #include "GraphPath.h"
 #include <limits>
 #include <stdexcept>
-#include <iostream>
 #include <utility>
 
 template <typename Weight, typename TIdentifier>
@@ -18,7 +17,7 @@ class DijkstraAlgorithm : public IAlgorithm<Weight, std::pair<MutableArraySequen
 public:
     using DistanceSequence = MutableArraySequence<Weight>;
     using PathResult = std::pair<DistanceSequence, GraphPath<Weight, TIdentifier>>;
-    using VertexPtr = IVertex<TIdentifier>*;
+    using VertexPtr = IVertex<Weight, TIdentifier>*;
     using VertexSequence = MutableArraySequence<VertexPtr>;
     using PredecessorMap = HashTableDictionary<TIdentifier, VertexPtr>;
 
@@ -54,48 +53,44 @@ public:
 
         for (size_t i = 0; i < vertices.getLength(); ++i) {
             distances.add(vertices.get(i)->getId(), std::numeric_limits<Weight>::max());
-            predecessors.add(vertices.get(i)->getId(), nullptr);
+            predecessors.add(vertices.get(i)->getId(), nullptr); // Initialize predecessors
         }
 
         distances.add(startVertex->getId(), 0);
         queue.enqueue(startVertex->getId(), 0);
-
-
         while (!queue.isEmpty()) {
             TIdentifier currentVertexId = queue.dequeue();
             VertexPtr currentVertex = graph->getVertexById(currentVertexId);
-
             if (!currentVertex) {
                 continue;
             }
+
 
             auto edges = graph->getEdges(currentVertex);
 
             for (size_t i = 0; i < edges.getLength(); ++i) {
                 VertexPtr neighborVertex = edges.get(i)->getTo();
-                if (!neighborVertex) {
-                    continue;
+                if (!neighborVertex)
+                {
+                   continue;
                 }
 
                 Weight weight = edges.get(i)->getWeight();
                 Weight newDistance = distances.get(currentVertexId) + weight;
-
                 if (newDistance < distances.get(neighborVertex->getId())) {
                     distances.add(neighborVertex->getId(), newDistance);
                     predecessors.add(neighborVertex->getId(), currentVertex);
-                    queue.enqueue(neighborVertex->getId(), newDistance);
-
+                    queue.enqueue(neighborVertex->getId(), newDistance); // Обновляем приоритет
                 }
             }
         }
 
         auto distanceResult = MakeShared<DistanceSequence>();
-        auto pathVertices = MakeShared<VertexSequence>();
-
+        VertexSequence pathVertices;
         if (endVertex && distances.get(endVertex->getId()) != std::numeric_limits<Weight>::max()) {
             VertexPtr current = endVertex;
             while (current != nullptr) {
-                pathVertices->prepend(current);
+                pathVertices.prepend(current);
                 current = predecessors.get(current->getId());
             }
         }
@@ -104,7 +99,6 @@ public:
         for (size_t i = 0; i < vertices.getLength(); ++i) {
             distanceResult->append(distances.get(vertices.get(i)->getId()));
         }
-
         GraphPath<Weight, TIdentifier> path(pathVertices);
         return MakeShared<PathResult>(std::make_pair(*distanceResult, path));
     }

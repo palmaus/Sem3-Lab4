@@ -10,14 +10,14 @@
 #include <functional>
 
 template <typename TWeight, typename TIdentifier>
-class ConnectedComponentsAlgorithm : public IAlgorithm<TWeight, MutableArraySequence<MutableArraySequence<IVertex<TIdentifier>*>>, TIdentifier> {
+class ConnectedComponentsAlgorithm : public IAlgorithm<TWeight, MutableArraySequence<MutableArraySequence<IVertex<TWeight, TIdentifier>*>>, TIdentifier> {
 private:
-    void dfs(IVertex<TIdentifier>* vertex, const IGraph<TWeight, TIdentifier>* graph, HashTableDictionary<TIdentifier, bool>& visited, MutableArraySequence<IVertex<TIdentifier>*>& component) const {
+    void dfs(IVertex<TWeight, TIdentifier>* vertex, const IGraph<TWeight, TIdentifier>* graph, HashTableDictionary<TIdentifier, bool>& visited, MutableArraySequence<IVertex<TWeight, TIdentifier>*>& component) const {
         visited.add(vertex->getId(), true);
         component.append(vertex);
         auto edges = graph->getEdges(vertex);
         for (size_t i = 0; i < edges.getLength(); ++i) {
-            IVertex<TIdentifier>* neighbor = nullptr;
+            IVertex<TWeight, TIdentifier>* neighbor = nullptr;
             if (edges.get(i)->getFrom()->getId() == vertex->getId()) {
                 neighbor = edges.get(i)->getTo();
             } else {
@@ -32,10 +32,10 @@ private:
 public:
     ~ConnectedComponentsAlgorithm() override = default;
 
-    SharedPtr<MutableArraySequence<MutableArraySequence<IVertex<TIdentifier>*>>> execute(
+    SharedPtr<MutableArraySequence<MutableArraySequence<IVertex<TWeight, TIdentifier>*>>> execute(
         const IGraph<TWeight, TIdentifier>* graph,
-        IVertex<TIdentifier>* startVertex = nullptr,
-        IVertex<TIdentifier>* endVertex = nullptr
+        IVertex<TWeight, TIdentifier>* startVertex = nullptr,
+        IVertex<TWeight, TIdentifier>* endVertex = nullptr
     ) const override {
         auto vertices = graph->getVertices();
         HashTableDictionary<TIdentifier, bool> visited;
@@ -43,11 +43,11 @@ public:
             visited.add(vertices.get(i)->getId(), false);
         }
 
-        auto components = MakeShared<MutableArraySequence<MutableArraySequence<IVertex<TIdentifier>*>>>();
+        auto components = MakeShared<MutableArraySequence<MutableArraySequence<IVertex<TWeight, TIdentifier>*>>>();
         for (size_t i = 0; i < vertices.getLength(); ++i) {
-            IVertex<TIdentifier>* vertex = vertices.get(i);
+            IVertex<TWeight, TIdentifier>* vertex = vertices.get(i);
             if (!visited.get(vertex->getId())) {
-                auto component = MakeShared<MutableArraySequence<IVertex<TIdentifier>*>>();
+                auto component = MakeShared<MutableArraySequence<IVertex<TWeight, TIdentifier>*>>();
                 dfs(vertex, graph, visited, *component);
                 components->append(*component);
             }

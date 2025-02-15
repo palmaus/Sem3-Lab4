@@ -31,7 +31,7 @@ public:
         auto graph = new DirectedGraph<Weight, TIdentifier>();
 
         for (size_t i = 0; i < numVertices_; ++i) {
-            graph->addVertex(new Vertex<TIdentifier>(static_cast<TIdentifier>(i)));
+            graph->addVertex(new Vertex<Weight, TIdentifier>(static_cast<TIdentifier>(i)));
         }
 
         auto vertices = graph->getVertices();

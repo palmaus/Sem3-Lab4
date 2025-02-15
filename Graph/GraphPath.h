@@ -5,55 +5,52 @@
 #include "IVertex.h"
 #include "IEdge.h"
 #include "MutableArraySequence.h"
-#include "SharedPtr.h"
 #include <stdexcept>
 
 template <typename Weight, typename TIdentifier>
 class GraphPath {
 public:
-    using VertexPtr = IVertex<TIdentifier>*;
+    using VertexPtr = IVertex<Weight, TIdentifier>*;
     using EdgePtr = IEdge<Weight, TIdentifier>*;
     using VertexSequence = MutableArraySequence<VertexPtr>;
-    using SharedVertexSequence = SharedPtr<VertexSequence>;
 
 private:
-    SharedVertexSequence vertices_;
+    VertexSequence vertices_;
 
 public:
-    GraphPath() : vertices_(MakeShared<VertexSequence>()) {}
-    GraphPath(const VertexSequence& vertices) : vertices_(MakeShared<VertexSequence>(vertices)) {}
-    GraphPath(const SharedVertexSequence& vertices) : vertices_(vertices) {}
+    GraphPath() = default;
+    explicit GraphPath(const VertexSequence& vertices) : vertices_(vertices) {}
     ~GraphPath() = default;
 
     VertexPtr getStartVertex() const {
-        if (vertices_->getLength() > 0) {
-            return vertices_->get(0);
+        if (vertices_.getLength() > 0) {
+            return vertices_.get(0);
         }
-        return nullptr; // Path is empty
+        return nullptr;
     }
 
     VertexPtr getEndVertex() const {
-        if (vertices_->getLength() > 0) {
-            return vertices_->get(vertices_->getLength() - 1);
+        if (vertices_.getLength() > 0) {
+            return vertices_.get(vertices_.getLength() - 1);
         }
-        return nullptr; // Path is empty
+        return nullptr;
     }
 
-    bool containsVertex(const VertexPtr vertex) const {
-        for (size_t i = 0; i < vertices_->getLength(); ++i) {
-            if (vertices_->get(i)->getId() == vertex->getId()) {
+      bool containsVertex(const VertexPtr vertex) const {
+        for (size_t i = 0; i < vertices_.getLength(); ++i) {
+            if (vertices_.get(i)->getId() == vertex->getId()) {
                 return true;
             }
         }
         return false;
     }
 
+
     bool containsEdge(const IGraph<Weight, TIdentifier>* graph, const EdgePtr edge) const {
-        for (size_t i = 0; i < vertices_->getLength() - 1; ++i) {
-            IVertex<TIdentifier>* fromVertex = vertices_->get(i);
-            IVertex<TIdentifier>* toVertex = vertices_->get(i + 1);
-            //Проверяем, что текущее ребро, это переход от fromVertex к toVertex
-            if(edge->getFrom()->getId() == fromVertex->getId() && edge->getTo()->getId() == toVertex->getId())
+        for (size_t i = 0; i < vertices_.getLength() - 1; ++i) {
+            VertexPtr fromVertex = vertices_.get(i);
+            VertexPtr toVertex = vertices_.get(i + 1);
+             if(edge->getFrom()->getId() == fromVertex->getId() && edge->getTo()->getId() == toVertex->getId())
             {
                 return true;
             }
@@ -63,35 +60,34 @@ public:
 
     bool canConcatenate(const GraphPath<Weight, TIdentifier>& otherPath) const {
         if (getEndVertex() == nullptr || otherPath.getStartVertex() == nullptr) {
-            return false; // Cannot concatenate if either path is empty
+            return false;
         }
         return getEndVertex()->getId() == otherPath.getStartVertex()->getId();
     }
 
     GraphPath<Weight, TIdentifier> concatenate(const GraphPath<Weight, TIdentifier>& otherPath) const {
         if (!canConcatenate(otherPath)) {
-            throw std::invalid_argument("Paths cannot be concatenated: end vertex of the first path is not the start vertex of the second path.");
+            throw std::invalid_argument("Paths cannot be concatenated.");
         }
 
-        auto newVertices = MakeShared<VertexSequence>();
-        // Copy vertices from the first path
-        for (size_t i = 0; i < vertices_->getLength(); ++i) {
-            newVertices->append(vertices_->get(i));
+        VertexSequence newVertices;
+        for (size_t i = 0; i < vertices_.getLength(); ++i) {
+            newVertices.append(vertices_.get(i));
         }
-        // Append vertices from the second path, starting from the second vertex (to avoid duplication of the connecting vertex)
-        for (size_t i = 1; i < otherPath.vertices_->getLength(); ++i) {
-            newVertices->append(otherPath.vertices_->get(i));
+        // Добавляем вершины из второго пути (кроме первой, чтобы избежать дублирования)
+        for (size_t i = 1; i < otherPath.vertices_.getLength(); ++i) {
+            newVertices.append(otherPath.vertices_.get(i));
         }
 
         return GraphPath<Weight, TIdentifier>(newVertices);
     }
 
     size_t getLength() const {
-        return vertices_->getLength();
+        return vertices_.getLength();
     }
 
-    VertexSequence getVertices() const {
-        return *vertices_;
+    const VertexSequence& getVertices() const {
+        return vertices_;
     }
 };
 

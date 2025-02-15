@@ -325,8 +325,8 @@ namespace internal_tests {
         // Тест добавления вершин
         runner.expectNoException("DirectedGraph::Add vertices", []() {
             DirectedGraph<int, int> graph;
-            IVertex<int> *v1 = new Vertex<int>(1);
-            IVertex<int> *v2 = new Vertex<int>(2);
+            IVertex<int, int> *v1 = new Vertex<int, int>(1);
+            IVertex<int, int> *v2 = new Vertex<int, int>(2);
             graph.addVertex(v1);
             graph.addVertex(v2);
         });
@@ -334,9 +334,9 @@ namespace internal_tests {
         // Тест добавления ребер
         runner.expectNoException("DirectedGraph::Add edges", []() {
             DirectedGraph<int, int> graph;
-            IVertex<int> *v1 = new Vertex<int>(1);
-            IVertex<int> *v2 = new Vertex<int>(2);
-            IVertex<int> *v3 = new Vertex<int>(3);
+            IVertex<int, int> *v1 = new Vertex<int, int>(1);
+            IVertex<int, int> *v2 = new Vertex<int, int>(2);
+            IVertex<int, int> *v3 = new Vertex<int, int>(3);
             graph.addVertex(v1);
             graph.addVertex(v2);
             graph.addVertex(v3);
@@ -347,8 +347,8 @@ namespace internal_tests {
         // Тест получения вершин
         runner.expectNoException("DirectedGraph::Get vertices", []() {
             DirectedGraph<int, int> graph;
-            IVertex<int> *v1 = new Vertex<int>(1);
-            IVertex<int> *v2 = new Vertex<int>(2);
+            IVertex<int, int> *v1 = new Vertex<int, int>(1);
+            IVertex<int, int> *v2 = new Vertex<int, int>(2);
             graph.addVertex(v1);
             graph.addVertex(v2);
             auto vertices = graph.getVertices();
@@ -360,9 +360,9 @@ namespace internal_tests {
         // Тест получения ребер
         runner.expectNoException("DirectedGraph::Get edges", []() {
             DirectedGraph<int, int> graph;
-            IVertex<int> *v1 = new Vertex<int>(1);
-            IVertex<int> *v2 = new Vertex<int>(2);
-            IVertex<int> *v3 = new Vertex<int>(3);
+            IVertex<int, int> *v1 = new Vertex<int, int>(1);
+            IVertex<int, int> *v2 = new Vertex<int, int>(2);
+            IVertex<int, int> *v3 = new Vertex<int, int>(3);
             graph.addVertex(v1);
             graph.addVertex(v2);
             graph.addVertex(v3);
@@ -377,8 +377,8 @@ namespace internal_tests {
         // Тест hasVertex
         runner.expectNoException("DirectedGraph::hasVertex", []() {
             DirectedGraph<int, int> graph;
-            IVertex<int> *v1 = new Vertex<int>(1);
-            IVertex<int> *v2 = new Vertex<int>(2);
+            IVertex<int, int> *v1 = new Vertex<int, int>(1);
+            IVertex<int, int> *v2 = new Vertex<int, int>(2);
             graph.addVertex(v1);
             if (!graph.hasVertex(v1)) throw std::runtime_error("Vertex should be present");
             if (graph.hasVertex(v2)) throw std::runtime_error("Vertex should not be present");
@@ -387,8 +387,8 @@ namespace internal_tests {
         // Тест hasEdge
         runner.expectNoException("DirectedGraph::hasEdge", []() {
             DirectedGraph<int, int> graph;
-            IVertex<int> *v1 = new Vertex<int>(1);
-            IVertex<int> *v2 = new Vertex<int>(2);
+            IVertex<int, int> *v1 = new Vertex<int, int>(1);
+            IVertex<int, int> *v2 = new Vertex<int, int>(2);
             graph.addVertex(v1);
             graph.addVertex(v2);
             graph.addEdge(v1, v2, 1);
@@ -400,9 +400,9 @@ namespace internal_tests {
         // Тест getVertexById
         runner.expectNoException("DirectedGraph::getVertexById", []() {
             DirectedGraph<int, int> graph;
-            IVertex<int> *v1 = new Vertex<int>(1);
+            IVertex<int, int> *v1 = new Vertex<int, int>(1);
             graph.addVertex(v1);
-            IVertex<int> *foundVertex = graph.getVertexById(1);
+            IVertex<int, int> *foundVertex = graph.getVertexById(1);
             if (!foundVertex) throw std::runtime_error("Vertex not found");
             if (foundVertex->getId() != 1) throw std::runtime_error("Incorrect vertex ID");
         });
@@ -419,8 +419,8 @@ namespace internal_tests {
         // Тест добавления вершин
         runner.expectNoException("UndirectedGraph::Add vertices", []() {
             UndirectedGraph<int, int> graph;
-            IVertex<int> *v1 = new Vertex<int>(1);
-            IVertex<int> *v2 = new Vertex<int>(2);
+            IVertex<int, int> *v1 = new Vertex<int, int>(1);
+            IVertex<int, int> *v2 = new Vertex<int, int>(2);
             graph.addVertex(v1);
             graph.addVertex(v2);
         });
@@ -428,8 +428,8 @@ namespace internal_tests {
         // Тест добавления ребер
         runner.expectNoException("UndirectedGraph::Add edges", []() {
             UndirectedGraph<int, int> graph;
-            IVertex<int> *v1 = new Vertex(1);
-            IVertex<int> *v2 = new Vertex(2);
+            IVertex<int, int> *v1 = new Vertex<int,int>(1);
+            IVertex<int, int> *v2 = new Vertex<int,int>(2);
             graph.addVertex(v1);
             graph.addVertex(v2);
             graph.addEdge(v1, v2, 10);
@@ -438,8 +438,8 @@ namespace internal_tests {
         // Тест получения вершин
         runner.expectNoException("UndirectedGraph::Get vertices", []() {
             UndirectedGraph<int, int> graph;
-            IVertex<int> *v1 = new Vertex<int>(1);
-            IVertex<int> *v2 = new Vertex<int>(2);
+            IVertex<int, int> *v1 = new Vertex<int, int>(1);
+            IVertex<int, int> *v2 = new Vertex<int, int>(2);
             graph.addVertex(v1);
             graph.addVertex(v2);
             auto vertices = graph.getVertices();
@@ -451,8 +451,8 @@ namespace internal_tests {
         // Тест получения ребер
         runner.expectNoException("UndirectedGraph::Get edges", []() {
             UndirectedGraph<int, int> graph;
-            IVertex<int> *v1 = new Vertex<int>(1);
-            IVertex<int> *v2 = new Vertex<int>(2);
+            IVertex<int, int> *v1 = new Vertex<int, int>(1);
+            IVertex<int, int> *v2 = new Vertex<int, int>(2);
             graph.addVertex(v1);
             graph.addVertex(v2);
             graph.addEdge(v1, v2, 10);
@@ -465,8 +465,8 @@ namespace internal_tests {
         // Тест hasVertex
         runner.expectNoException("UndirectedGraph::hasVertex", []() {
             UndirectedGraph<int, int> graph;
-            IVertex<int> *v1 = new Vertex<int>(1);
-            IVertex<int> *v2 = new Vertex<int>(2);
+            IVertex<int, int> *v1 = new Vertex<int, int>(1);
+            IVertex<int, int> *v2 = new Vertex<int, int>(2);
             graph.addVertex(v1);
             if (!graph.hasVertex(v1)) throw std::runtime_error("Vertex should be present");
             if (graph.hasVertex(v2)) throw std::runtime_error("Vertex should not be present");
@@ -475,8 +475,8 @@ namespace internal_tests {
         // Тест hasEdge
         runner.expectNoException("UndirectedGraph::hasEdge", []() {
             UndirectedGraph<int, int> graph;
-            IVertex<int> *v1 = new Vertex<int>(1);
-            IVertex<int> *v2 = new Vertex<int>(2);
+            IVertex<int, int> *v1 = new Vertex<int, int>(1);
+            IVertex<int, int> *v2 = new Vertex<int, int>(2);
             graph.addVertex(v1);
             graph.addVertex(v2);
             graph.addEdge(v1, v2, 1);
@@ -487,25 +487,25 @@ namespace internal_tests {
         // Тест getVertexById
         runner.expectNoException("UndirectedGraph::getVertexById", []() {
             UndirectedGraph<int, int> graph;
-            IVertex<int> *v1 = new Vertex<int>(1);
+            IVertex<int, int> *v1 = new Vertex<int, int>(1);
             graph.addVertex(v1);
-            IVertex<int> *foundVertex = graph.getVertexById(1);
+            IVertex<int, int> *foundVertex = graph.getVertexById(1);
             if (!foundVertex) throw std::runtime_error("Vertex not found");
             if (foundVertex->getId() != 1) throw std::runtime_error("Incorrect vertex ID");
         });
     }
 
-    MutableArraySequence<IVertex<int> *> createVertices(std::vector<int> ids) {
-        MutableArraySequence<IVertex<int> *> vertices;
+    MutableArraySequence<IVertex<int, int> *> createVertices(std::vector<int> ids) {
+        MutableArraySequence<IVertex<int, int> *> vertices;
         for (int id : ids) {
-            vertices.append(new Vertex<int>(id));
+            vertices.append(new Vertex<int, int>(id));
         }
         return vertices;
     }
 
     DirectedGraph<int, int> createDirectedGraphForTests() {
         DirectedGraph<int, int> graph;
-        MutableArraySequence<IVertex<int> *> vertices = createVertices({1, 2, 3, 4, 5});
+        MutableArraySequence<IVertex<int, int> *> vertices = createVertices({1, 2, 3, 4, 5});
         for (size_t i = 0; i < vertices.getLength(); ++i) {
             graph.addVertex(vertices.get(i));
         }
@@ -522,7 +522,7 @@ namespace internal_tests {
 
     UndirectedGraph<int, int> createUndirectedGraphForTests() {
         UndirectedGraph<int, int> graph;
-        MutableArraySequence<IVertex<int> *> vertices = createVertices({1, 2, 3, 4, 5});
+        MutableArraySequence<IVertex<int, int> *> vertices = createVertices({1, 2, 3, 4, 5});
         for (size_t i = 0; i < vertices.getLength(); ++i) {
             graph.addVertex(vertices.get(i));
         }
@@ -542,8 +542,8 @@ namespace internal_tests {
             DirectedGraph<int, int> graph = createDirectedGraphForTests();
             DijkstraAlgorithm<int, int> dijkstra;
 
-            IVertex<int> *startVertex = graph.getVertexById(1);
-            IVertex<int> *endVertex = graph.getVertexById(5);
+            IVertex<int, int> *startVertex = graph.getVertexById(1);
+            IVertex<int, int> *endVertex = graph.getVertexById(5);
 
             if (!startVertex || !endVertex) {
                 throw std::runtime_error("Start or end vertex not found in graph.");
@@ -629,26 +629,24 @@ namespace internal_tests {
 
             // Заполняем наборы из результата алгоритма
             for (size_t i = 0; i < components->getLength(); ++i) {
-                auto& component = components->get(i); // component - ссылка на MutableArraySequence<IVertex<int>*>
+                auto& component = components->get(i); // component - ссылка на MutableArraySequence<IVertex<int, int>*>
 
                 if (component.getLength() == 1)
                 {
-                    IVertex<int>* vertex = component.get(0);
+                    IVertex<int, int>* vertex = component.get(0);
                     if (!vertex) {
                         throw std::runtime_error("component.get(0) returned nullptr");
                     }
-                    component1.insert(vertex->getId()); // Должен вызываться Vertex::getId()
+                    component1.insert(vertex->getId());
                 }
                 else if(component.getLength() == 4)
                 {
                     for(size_t j = 0; j < component.getLength(); j++)
                     {
-                        IVertex<int>* vertex = component.get(j);
+                        IVertex<int, int>* vertex = component.get(j);
                          if (!vertex) {
                             throw std::runtime_error("component.get(" + std::to_string(j) + ") returned nullptr");
                          }
-                          // Распечатываем тип вершины для отладки
-                          std::cerr << "Component 2, vertex[" << j << "] type: " << typeid(*vertex).name() << ", id: " << vertex->getId() << std::endl;
                           component2.insert(vertex->getId());
                     }
                 }
@@ -857,7 +855,7 @@ namespace internal_tests {
             array1.insertAt(0, 1);
             array1.insertAt(1, 2);
             array1.insertAt(2, 3);
-            DynamicArray<int> array2(array1); // Вызов копирующего конструктора
+            DynamicArray<int> array2(array1);
             if (!dynamicArraysEqual(&array1, &array2))
                 throw std::runtime_error("Arrays are not equal after copy construction.");
         });
@@ -1459,9 +1457,9 @@ namespace internal_tests {
 
         // 3. Тест getStartVertex и getEndVertex на непустом пути
         runner.expectNoException("GraphPath::Start and end vertex on non-empty path", []() {
-            MutableArraySequence<IVertex<int> *> vertices;
-            vertices.append(new Vertex<int>(1));
-            vertices.append(new Vertex<int>(2));
+            MutableArraySequence<IVertex<int, int> *> vertices;
+            vertices.append(new Vertex<int, int>(1));
+            vertices.append(new Vertex<int, int>(2));
             GraphPath<int, int> path(vertices);
             if (path.getStartVertex()->getId() != 1 || path.getEndVertex()->getId() != 2) {
                 throw std::runtime_error("Incorrect start or end vertex.");
@@ -1470,28 +1468,28 @@ namespace internal_tests {
 
         // 4. Тест containsVertex
         runner.expectNoException("GraphPath::containsVertex", []() {
-            MutableArraySequence<IVertex<int> *> vertices;
-            vertices.append(new Vertex<int>(1));
-            vertices.append(new Vertex<int>(2));
+            MutableArraySequence<IVertex<int, int> *> vertices;
+            vertices.append(new Vertex<int, int>(1));
+            vertices.append(new Vertex<int, int>(2));
             GraphPath<int, int> path(vertices);
-            if (!path.containsVertex(new Vertex<int>(1))) {
+            if (!path.containsVertex(new Vertex<int, int>(1))) {
                 throw std::runtime_error("Path should contain vertex 1.");
             }
-            if (path.containsVertex(new Vertex<int>(3))) {
+            if (path.containsVertex(new Vertex<int, int>(3))) {
                 throw std::runtime_error("Path should not contain vertex 3.");
             }
         });
 
         // 5. Тест canConcatenate и concatenate
         runner.expectNoException("GraphPath::canConcatenate and concatenate", []() {
-            MutableArraySequence<IVertex<int> *> vertices1;
-            vertices1.append(new Vertex<int>(1));
-            vertices1.append(new Vertex<int>(2));
+            MutableArraySequence<IVertex<int, int> *> vertices1;
+            vertices1.append(new Vertex<int, int>(1));
+            vertices1.append(new Vertex<int, int>(2));
             GraphPath<int, int> path1(vertices1);
 
-            MutableArraySequence<IVertex<int> *> vertices2;
-            vertices2.append(new Vertex<int>(2));
-            vertices2.append(new Vertex<int>(3));
+            MutableArraySequence<IVertex<int, int> *> vertices2;
+            vertices2.append(new Vertex<int, int>(2));
+            vertices2.append(new Vertex<int, int>(3));
             GraphPath<int, int> path2(vertices2);
 
             if (!path1.canConcatenate(path2)) {
@@ -1508,14 +1506,14 @@ namespace internal_tests {
 
         // 6. Тест canConcatenate, когда пути не могут быть объединены
         runner.expectNoException("GraphPath::canConcatenate negative case", []() {
-            MutableArraySequence<IVertex<int> *> vertices1;
-            vertices1.append(new Vertex<int>(1));
-            vertices1.append(new Vertex<int>(2));
+            MutableArraySequence<IVertex<int, int> *> vertices1;
+            vertices1.append(new Vertex<int, int>(1));
+            vertices1.append(new Vertex<int, int>(2));
             GraphPath<int, int> path1(vertices1);
 
-            MutableArraySequence<IVertex<int> *> vertices2;
-            vertices2.append(new Vertex<int>(3));
-            vertices2.append(new Vertex<int>(4));
+            MutableArraySequence<IVertex<int, int> *> vertices2;
+            vertices2.append(new Vertex<int, int>(3));
+            vertices2.append(new Vertex<int, int>(4));
             GraphPath<int, int> path2(vertices2);
 
             if (path1.canConcatenate(path2)) {
@@ -1525,14 +1523,14 @@ namespace internal_tests {
 
         // 7. Тест исключения concatenate, когда пути не могут быть объединены
         runner.expectException<std::invalid_argument>("GraphPath::concatenate exception case", []() {
-            MutableArraySequence<IVertex<int> *> vertices1;
-            vertices1.append(new Vertex<int>(1));
-            vertices1.append(new Vertex<int>(2));
+            MutableArraySequence<IVertex<int, int> *> vertices1;
+            vertices1.append(new Vertex<int, int>(1));
+            vertices1.append(new Vertex<int, int>(2));
             GraphPath<int, int> path1(vertices1);
 
-            MutableArraySequence<IVertex<int> *> vertices2;
-            vertices2.append(new Vertex<int>(3));
-            vertices2.append(new Vertex<int>(4));
+            MutableArraySequence<IVertex<int, int> *> vertices2;
+            vertices2.append(new Vertex<int, int>(3));
+            vertices2.append(new Vertex<int, int>(4));
             GraphPath<int, int> path2(vertices2);
 
             path1.concatenate(path2); // Должно выбросить исключение
@@ -1541,7 +1539,7 @@ namespace internal_tests {
         // 8. Тест containsEdge (требует создания графа и ребер)
         runner.expectNoException("GraphPath::containsEdge", []() {
             DirectedGraph<int, int> graph = createDirectedGraphForTests();
-            MutableArraySequence<IVertex<int> *> vertices;
+            MutableArraySequence<IVertex<int, int> *> vertices;
             vertices.append(graph.getVertexById(1));
             vertices.append(graph.getVertexById(2));
             GraphPath<int, int> path(vertices);
@@ -1559,12 +1557,12 @@ namespace internal_tests {
                 throw std::runtime_error("Path should contain edge 1->2.");
             }
              UndirectedGraph<int, int> undirectedGraph;
-             IVertex<int>* v1 = new Vertex<int>(1);
-             IVertex<int>* v2 = new Vertex<int>(2);
+             IVertex<int, int>* v1 = new Vertex<int, int>(1);
+             IVertex<int, int>* v2 = new Vertex<int, int>(2);
              undirectedGraph.addVertex(v1);
              undirectedGraph.addVertex(v2);
              undirectedGraph.addEdge(v1, v2, 10);
-             MutableArraySequence<IVertex<int> *> vertices2;
+             MutableArraySequence<IVertex<int, int> *> vertices2;
              vertices2.append(v1);
              vertices2.append(v2);
              GraphPath<int, int> path2(vertices2);

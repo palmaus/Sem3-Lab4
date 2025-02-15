@@ -26,11 +26,11 @@ private:
         }
 
 
-        std::function<void(IVertex<TIdentifier>*)> dfs = [&](IVertex<TIdentifier>* vertex) {
+        std::function<void(IVertex<TWeight, TIdentifier>*)> dfs = [&](IVertex<TWeight, TIdentifier>* vertex) {
             visited.add(vertex->getId(), true);
             auto edges = graph->getEdges(vertex);
             for (size_t i = 0; i < edges.getLength(); ++i) {
-                IVertex<TIdentifier>* neighbor = nullptr;
+                IVertex<TWeight, TIdentifier>* neighbor = nullptr;
                 if (edges.get(i)->getFrom()->getId() == vertex->getId()) {
                     neighbor = edges.get(i)->getTo();
                 } else {
@@ -56,8 +56,8 @@ public:
 
     SharedPtr<MutableArraySequence<IEdge<TWeight, TIdentifier>*>> execute(
         const IGraph<TWeight, TIdentifier>* graph,
-        IVertex<TIdentifier>* startVertex = nullptr,
-        IVertex<TIdentifier>* endVertex = nullptr
+        IVertex<TWeight, TIdentifier>* startVertex = nullptr,
+        IVertex<TWeight, TIdentifier>* endVertex = nullptr
     ) const override {
         auto vertices = graph->getVertices();
         if (vertices.getLength() == 0) {
@@ -76,11 +76,11 @@ public:
         PriorityQueue<std::pair<TIdentifier, TIdentifier>, TWeight> edgesPQ;
         auto mstEdges = MakeShared<MutableArraySequence<IEdge<TWeight, TIdentifier>*>>();
 
-        IVertex<TIdentifier>* startVertex_ = vertices.get(0);
+        IVertex<TWeight, TIdentifier>* startVertex_ = vertices.get(0);
         inMST.add(startVertex_->getId(), true);
         auto initialEdges = graph->getEdges(startVertex_);
         for (size_t i = 0; i < initialEdges.getLength(); ++i) {
-            IVertex<TIdentifier>* neighborVertex = nullptr;
+            IVertex<TWeight, TIdentifier>* neighborVertex = nullptr;
             if (initialEdges.get(i)->getFrom()->getId() == startVertex_->getId()) {
                 neighborVertex = initialEdges.get(i)->getTo();
             } else {
@@ -94,14 +94,14 @@ public:
             if (inMST.get(toVertexId)) {
                 continue;
             }
-            IVertex<TIdentifier>* fromV = graph->getVertexById(fromVertexId);
-            IVertex<TIdentifier>* toV = graph->getVertexById(toVertexId);
+            IVertex<TWeight, TIdentifier>* fromV = graph->getVertexById(fromVertexId);
+            IVertex<TWeight, TIdentifier>* toV = graph->getVertexById(toVertexId);
             if (!fromV || !toV) continue;
 
             IEdge<TWeight, TIdentifier>* edge = nullptr;
             auto currentEdges = graph->getEdges(fromV);
             for (size_t i = 0; i < currentEdges.getLength(); ++i) {
-                IVertex<TIdentifier>* neighbor = nullptr;
+                IVertex<TWeight, TIdentifier>* neighbor = nullptr;
                 if (currentEdges.get(i)->getFrom()->getId() == fromV->getId()) {
                     neighbor = currentEdges.get(i)->getTo();
                 } else {
@@ -119,7 +119,7 @@ public:
 
             auto newEdges = graph->getEdges(toV);
             for (size_t i = 0; i < newEdges.getLength(); ++i) {
-                IVertex<TIdentifier>* neighborVertex = nullptr;
+                IVertex<TWeight, TIdentifier>* neighborVertex = nullptr;
                 if (newEdges.get(i)->getFrom()->getId() == toV->getId()) {
                     neighborVertex = newEdges.get(i)->getTo();
                 } else {

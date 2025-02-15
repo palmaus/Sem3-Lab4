@@ -11,53 +11,40 @@
 template <typename TWeight, typename TIdentifier>
 class DirectedGraph : public IGraph<TWeight, TIdentifier> {
 private:
-    using VertexMap = HashTableDictionary<TIdentifier, IVertex<TIdentifier>*>;
-    using AdjacencyList = HashTableDictionary<TIdentifier, HashTableDictionary<TIdentifier, Edge<TWeight, TIdentifier>*>>;
-
-    AdjacencyList adjList_;
+    using VertexMap = HashTableDictionary<TIdentifier, IVertex<TWeight, TIdentifier>*>;
     VertexMap vertexMap_;
 
-    void fillOrder(IVertex<TIdentifier>* vertex, HashTableDictionary<TIdentifier, bool>& visited,
-                   MutableArraySequence<IVertex<TIdentifier>*>& stack) const;
+    void fillOrder(IVertex<TWeight, TIdentifier>* vertex, HashTableDictionary<TIdentifier, bool>& visited,
+                   MutableArraySequence<IVertex<TWeight, TIdentifier>*>& stack) const;
 
     DirectedGraph<TWeight, TIdentifier> getTransposedGraph() const;
+
+    void dfs(IVertex<TWeight, TIdentifier>* vertex, HashTableDictionary<TIdentifier, bool>& visited,
+             MutableArraySequence<IVertex<TWeight, TIdentifier>*>& component) const;
 
 public:
     ~DirectedGraph() override;
 
-    void dfs(IVertex<TIdentifier>* vertex, HashTableDictionary<TIdentifier, bool>& visited,
-             MutableArraySequence<IVertex<TIdentifier>*>& component) const;
-
-    void addVertex(IVertex<TIdentifier>* vertex) override;
-
-    void removeVertex(IVertex<TIdentifier>* vertex) override;
-
-    void addEdge(IVertex<TIdentifier>* fromVertex, IVertex<TIdentifier>* toVertex, TWeight weight) override;
-
-    void removeEdge(IVertex<TIdentifier>* from, IVertex<TIdentifier>* to) override;
-
-    MutableArraySequence<IVertex<TIdentifier>*> getVertices() const override;
-
-    MutableArraySequence<IEdge<TWeight, TIdentifier>*> getEdges(IVertex<TIdentifier>* vertex) const override;
-
-    IVertex<TIdentifier>* getVertexById(TIdentifier vertexId) const override;
-
-    bool hasVertex(IVertex<TIdentifier>* vertex) const override;
-
-    bool hasEdge(IVertex<TIdentifier>* fromVertex, IVertex<TIdentifier>* toVertex) const override;
+    void addVertex(IVertex<TWeight, TIdentifier>* vertex) override;
+    void removeVertex(IVertex<TWeight, TIdentifier>* vertex) override;
+    void addEdge(IVertex<TWeight, TIdentifier>* fromVertex, IVertex<TWeight, TIdentifier>* toVertex, TWeight weight) override;
+    void removeEdge(IVertex<TWeight, TIdentifier>* from, IVertex<TWeight, TIdentifier>* to) override;
+    MutableArraySequence<IVertex<TWeight, TIdentifier>*> getVertices() const override;
+    MutableArraySequence<IEdge<TWeight, TIdentifier>*> getEdges(IVertex<TWeight, TIdentifier>* vertex) const override;
+    IVertex<TWeight, TIdentifier>* getVertexById(TIdentifier vertexId) const override;
+    bool hasVertex(IVertex<TWeight, TIdentifier>* vertex) const override;
+    bool hasEdge(IVertex<TWeight, TIdentifier>* fromVertex, IVertex<TWeight, TIdentifier>* toVertex) const override;
 };
 
-// Реализация DirectedGraph
-
 template <typename TWeight, typename TIdentifier>
-void DirectedGraph<TWeight, TIdentifier>::fillOrder(IVertex<TIdentifier>* vertex, HashTableDictionary<TIdentifier, bool>& visited,
-                                 MutableArraySequence<IVertex<TIdentifier>*>& stack) const {
-    if (!vertex) return; // Добавили проверку
+void DirectedGraph<TWeight, TIdentifier>::fillOrder(IVertex<TWeight, TIdentifier>* vertex, HashTableDictionary<TIdentifier, bool>& visited,
+                                 MutableArraySequence<IVertex<TWeight, TIdentifier>*>& stack) const {
+    if (!vertex) return;
 
     visited.add(vertex->getId(), true);
-    auto edges = getEdges(vertex);
+    auto edges = getEdges(vertex); // Исп. getEdges
     for (size_t i = 0; i < edges.getLength(); ++i) {
-        IVertex<TIdentifier>* neighbor = edges.get(i)->getTo();
+        IVertex<TWeight, TIdentifier>* neighbor = edges.get(i)->getTo();
         if (!visited.get(neighbor->getId())) {
             fillOrder(neighbor, visited, stack);
         }
@@ -70,40 +57,40 @@ DirectedGraph<TWeight, TIdentifier> DirectedGraph<TWeight, TIdentifier>::getTran
     DirectedGraph<TWeight, TIdentifier> transposedGraph;
     auto vertices = getVertices();
     for (size_t i = 0; i < vertices.getLength(); ++i) {
-        IVertex<TIdentifier>* vertex = vertices.get(i);
+        transposedGraph.addVertex(new Vertex<TWeight, TIdentifier>(vertices.get(i)->getId())); //  Добавляем верш.
+    }
+    for (size_t i = 0; i < vertices.getLength(); ++i) {
+        IVertex<TWeight, TIdentifier>* vertex = vertices.get(i);
         auto edges = getEdges(vertex);
         for (size_t j = 0; j < edges.getLength(); ++j) {
-            transposedGraph.addEdge(edges.get(j)->getTo(), vertex, edges.get(j)->getWeight());
+            auto edge = edges.get(j);
+            IVertex<TWeight, TIdentifier>* from = transposedGraph.getVertexById(edge->getTo()->getId());
+            IVertex<TWeight, TIdentifier>* to = transposedGraph.getVertexById(edge->getFrom()->getId());
+            transposedGraph.addEdge(from, to, edge->getWeight());
         }
     }
     return transposedGraph;
 }
 
+
 template <typename TWeight, typename TIdentifier>
 DirectedGraph<TWeight, TIdentifier>::~DirectedGraph() {
-   auto vertices = getVertices();
-    for (size_t i = 0; i < vertices.getLength(); ++i) {
-        auto edges = getEdges(vertices.get(i));
-        for (size_t j = 0; j < edges.getLength(); ++j) {
-            delete edges.get(j); // Удаляем ребра
-        }
-    }
-
+    auto vertices = getVertices();
     for (size_t i = 0; i < vertices.getLength(); ++i) {
         delete vertices.get(i); // Удаляем вершины!
     }
 }
 
 template <typename TWeight, typename TIdentifier>
-void DirectedGraph<TWeight, TIdentifier>::dfs(IVertex<TIdentifier>* vertex, HashTableDictionary<TIdentifier, bool>& visited,
-                           MutableArraySequence<IVertex<TIdentifier>*>& component) const {
-     if (!vertex) return; // Добавили проверку
+void DirectedGraph<TWeight, TIdentifier>::dfs(IVertex<TWeight, TIdentifier>* vertex, HashTableDictionary<TIdentifier, bool>& visited,
+                           MutableArraySequence<IVertex<TWeight, TIdentifier>*>& component) const {
+     if (!vertex) return;
 
     visited.add(vertex->getId(), true);
     component.append(vertex);
-    auto edges = getEdges(vertex);
+    auto edges = vertex->getOutgoingEdges(); // Исп. getOutgoingEdges
     for (size_t i = 0; i < edges.getLength(); ++i) {
-        IVertex<TIdentifier>* neighbor = edges.get(i)->getTo();
+        IVertex<TWeight, TIdentifier>* neighbor = edges.get(i)->getTo();
         if (!visited.get(neighbor->getId())) {
             dfs(neighbor, visited, component);
         }
@@ -111,50 +98,44 @@ void DirectedGraph<TWeight, TIdentifier>::dfs(IVertex<TIdentifier>* vertex, Hash
 }
 
 template <typename TWeight, typename TIdentifier>
-void DirectedGraph<TWeight, TIdentifier>::addVertex(IVertex<TIdentifier>* vertex) {
-    if (!vertex) return; // Добавили проверку
+void DirectedGraph<TWeight, TIdentifier>::addVertex(IVertex<TWeight, TIdentifier>* vertex) {
+    if (!vertex) return;
 
     if (!vertexMap_.containsKey(vertex->getId())) {
         vertexMap_.add(vertex->getId(), vertex);
-        adjList_.add(vertex->getId(), HashTableDictionary<TIdentifier, Edge<TWeight, TIdentifier>*>());
     }
 }
 
 template <typename TWeight, typename TIdentifier>
-void DirectedGraph<TWeight, TIdentifier>::removeVertex(IVertex<TIdentifier>* vertex) {
-	if (!vertex) return;
-    if (!vertexMap_.containsKey(vertex->getId())) {
-        return; // Вершины нет в графе
+void DirectedGraph<TWeight, TIdentifier>::removeVertex(IVertex<TWeight, TIdentifier>* vertex) {
+    if (!vertex || !vertexMap_.containsKey(vertex->getId())) {
+        return;
     }
 
-    // Удаляем все ребра, связанные с вершиной
-    auto edges = getEdges(vertex);
-
-    // Сначала удаляем ребра из списков смежности других вершин
-    for (size_t i = 0; i < edges.getLength(); ++i) {
-        IVertex<TIdentifier>* other = (edges.get(i)->getFrom()->getId() == vertex->getId()) ?
-            edges.get(i)->getTo() : edges.get(i)->getFrom();
-
-        if (adjList_.containsKey(other->getId())) { // Проверка нужна, т.к. other может быть удален в цикле
-            adjList_.get(other->getId()).remove(vertex->getId());
-        }
+    // Удаляем входящие ребра
+    auto incomingEdges = vertex->getIncomingEdges();
+    while(incomingEdges.getLength() > 0) {
+      auto edge = incomingEdges.get(0);
+        removeEdge(edge->getFrom(), vertex);
     }
-     // Теперь безопасно удаляем сами ребра,
-     for (size_t i = 0; i < edges.getLength(); ++i)
-     {
-         delete edges.get(i);
-     }
 
-    // Удаляем вершину из списков
-    adjList_.remove(vertex->getId());
+    // Удаляем исходящие ребра
+    auto outgoingEdges = vertex->getOutgoingEdges();
+
+    while(outgoingEdges.getLength() > 0) {
+       auto edge = outgoingEdges.get(0);
+        removeEdge(vertex, edge->getTo());
+    }
+
+
     vertexMap_.remove(vertex->getId());
-     // delete vertex;  //  Удалять vertex должен тот, кто его создал (в данном случае - GUI)
+     // delete vertex;  //  Удалять должен тот, кто создал
 }
 
 
 template <typename TWeight, typename TIdentifier>
-void DirectedGraph<TWeight, TIdentifier>::addEdge(IVertex<TIdentifier>* fromVertex, IVertex<TIdentifier>* toVertex, TWeight weight) {
-    if (!fromVertex || !toVertex) return;  // Добавили проверку
+void DirectedGraph<TWeight, TIdentifier>::addEdge(IVertex<TWeight, TIdentifier>* fromVertex, IVertex<TWeight, TIdentifier>* toVertex, TWeight weight) {
+    if (!fromVertex || !toVertex) return;
 
     if (!vertexMap_.containsKey(fromVertex->getId())) {
         addVertex(fromVertex);
@@ -162,34 +143,38 @@ void DirectedGraph<TWeight, TIdentifier>::addEdge(IVertex<TIdentifier>* fromVert
     if (!vertexMap_.containsKey(toVertex->getId())) {
         addVertex(toVertex);
     }
-    // Проверяем, нет ли уже такого ребра.  Если есть - ничего не делаем.
-    if (!hasEdge(fromVertex, toVertex)) {
-        adjList_.get(fromVertex->getId()).add(toVertex->getId(), new Edge<TWeight, TIdentifier>(fromVertex, toVertex, weight));
-    }
-}
 
+    auto edge = new Edge<TWeight, TIdentifier>(fromVertex, toVertex, weight);
 
-template <typename TWeight, typename TIdentifier>
-void DirectedGraph<TWeight, TIdentifier>::removeEdge(IVertex<TIdentifier>* fromVertex, IVertex<TIdentifier>* toVertex) {
-    if (!fromVertex || !toVertex) return;   // Добавили проверку
-    if (!hasEdge(fromVertex, toVertex)) {
-        return; // Ребра нет в графе
-    }
-
-    // Более эффективный способ удаления ребра:
-     auto& fromVertexEdges = adjList_.get(fromVertex->getId()); // Получаем ссылку на словарь!
-     Edge<TWeight, TIdentifier>* edgeToRemove = fromVertexEdges.get(toVertex->getId()); // Получаем указатель на ребро
-      fromVertexEdges.remove(toVertex->getId());
-
-    if (edgeToRemove != nullptr) { // Ребро могло быть уже удалено в removeVertex
-        delete edgeToRemove;
-    }
+    dynamic_cast<Vertex<TWeight, TIdentifier>*>(fromVertex)->addOutgoingEdge(edge);
+    dynamic_cast<Vertex<TWeight, TIdentifier>*>(toVertex)->addIncomingEdge(edge); // Добавляем ТОЛЬКО входящее!
 }
 
 template <typename TWeight, typename TIdentifier>
-MutableArraySequence<IVertex<TIdentifier>*> DirectedGraph<TWeight, TIdentifier>::getVertices() const {
+void DirectedGraph<TWeight, TIdentifier>::removeEdge(IVertex<TWeight, TIdentifier>* fromVertex, IVertex<TWeight, TIdentifier>* toVertex) {
+ if (!fromVertex || !toVertex || !hasEdge(fromVertex, toVertex)) {
+        return;
+    }
+
+    auto fromVertexOutgoingEdges = dynamic_cast<Vertex<TWeight, TIdentifier>*>(fromVertex)->getOutgoingEdges();
+
+	 for (size_t i = 0; i < fromVertexOutgoingEdges.getLength(); i++)
+	 {
+		  auto edge = fromVertexOutgoingEdges.get(i);
+		  if(edge->getTo() == toVertex)
+		  {
+            dynamic_cast<Vertex<TWeight, TIdentifier>*>(fromVertex)->removeOutgoingEdge(edge);
+            dynamic_cast<Vertex<TWeight, TIdentifier>*>(toVertex)->removeIncomingEdge(edge);
+				delete edge;
+				return;
+		  }
+	 }
+}
+
+template <typename TWeight, typename TIdentifier>
+MutableArraySequence<IVertex<TWeight, TIdentifier>*> DirectedGraph<TWeight, TIdentifier>::getVertices() const {
     auto items = vertexMap_.getAllItems();
-    MutableArraySequence<IVertex<TIdentifier>*> result;
+    MutableArraySequence<IVertex<TWeight, TIdentifier>*> result;
     for (size_t i = 0; i < items->getLength(); ++i) {
         result.append(items->get(i).second);
     }
@@ -197,21 +182,23 @@ MutableArraySequence<IVertex<TIdentifier>*> DirectedGraph<TWeight, TIdentifier>:
 }
 
 template <typename TWeight, typename TIdentifier>
-MutableArraySequence<IEdge<TWeight, TIdentifier>*> DirectedGraph<TWeight, TIdentifier>::getEdges(IVertex<TIdentifier>* vertex) const {
-    if (!vertex) throw std::invalid_argument("Nullptr vertex");// Добавили проверку
-    if (!adjList_.containsKey(vertex->getId())) {
-        return  MutableArraySequence<IEdge<TWeight, TIdentifier>*>(); // Возвращаем пустой список
-    }
-    auto edges = adjList_.get(vertex->getId()).getAllItems();
-    auto result = new MutableArraySequence<IEdge<TWeight, TIdentifier>*>();
-    for (size_t i = 0; i < edges->getLength(); ++i) {
-        result->append(edges->get(i).second);
-    }
-    return *result;
+MutableArraySequence<IEdge<TWeight, TIdentifier>*> DirectedGraph<TWeight, TIdentifier>::getEdges(IVertex<TWeight, TIdentifier>* vertex) const {
+     if (!vertex) throw std::invalid_argument("Nullptr vertex");
+     MutableArraySequence<IEdge<TWeight, TIdentifier>*> allEdges;
+     auto outgoingEdges = vertex->getOutgoingEdges();
+     auto incomingEdges = vertex->getIncomingEdges();
+     for (size_t i = 0; i < outgoingEdges.getLength(); ++i) {
+         allEdges.append(outgoingEdges.get(i));
+     }
+	 for (size_t i = 0; i < incomingEdges.getLength(); i++)
+	 {
+		  allEdges.append(incomingEdges.get(i));
+	 }
+     return allEdges;
 }
 
 template <typename TWeight, typename TIdentifier>
-IVertex<TIdentifier>* DirectedGraph<TWeight, TIdentifier>::getVertexById(TIdentifier vertexId) const {
+IVertex<TWeight, TIdentifier>* DirectedGraph<TWeight, TIdentifier>::getVertexById(TIdentifier vertexId) const {
     if (vertexMap_.containsKey(vertexId)) {
         return vertexMap_.get(vertexId);
     }
@@ -219,18 +206,22 @@ IVertex<TIdentifier>* DirectedGraph<TWeight, TIdentifier>::getVertexById(TIdenti
 }
 
 template <typename TWeight, typename TIdentifier>
-bool DirectedGraph<TWeight, TIdentifier>::hasVertex(IVertex<TIdentifier>* vertex) const {
+bool DirectedGraph<TWeight, TIdentifier>::hasVertex(IVertex<TWeight, TIdentifier>* vertex) const {
      if (!vertex) return false;
     return vertexMap_.containsKey(vertex->getId());
 }
 
 template <typename TWeight, typename TIdentifier>
-bool DirectedGraph<TWeight, TIdentifier>::hasEdge(IVertex<TIdentifier>* fromVertex, IVertex<TIdentifier>* toVertex) const {
+bool DirectedGraph<TWeight, TIdentifier>::hasEdge(IVertex<TWeight, TIdentifier>* fromVertex, IVertex<TWeight, TIdentifier>* toVertex) const {
     if (!fromVertex || !toVertex) return false;
-    if (!adjList_.containsKey(fromVertex->getId())) {
-        return false;
+
+    auto outgoingEdges = fromVertex->getOutgoingEdges();
+    for (size_t i = 0; i < outgoingEdges.getLength(); ++i) {
+        if (outgoingEdges.get(i)->getTo()->getId() == toVertex->getId()) {
+            return true;
+        }
     }
-    return adjList_.get(fromVertex->getId()).containsKey(toVertex->getId());
+    return false;
 }
 
-#endif // DIRECTEDGRAPH_H
+#endif

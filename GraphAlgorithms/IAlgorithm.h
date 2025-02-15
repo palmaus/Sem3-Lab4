@@ -10,8 +10,8 @@ public:
     virtual ~IAlgorithm() = default;
     virtual SharedPtr<ResultType> execute(
         const IGraph<TWeight, TIdentifier>* graph,
-        IVertex<TIdentifier>* startVertex = nullptr,
-        IVertex<TIdentifier>* endVertex = nullptr
+        IVertex<TWeight, TIdentifier>* startVertex = nullptr,
+        IVertex<TWeight, TIdentifier>* endVertex = nullptr
     ) const = 0;
 };
 
